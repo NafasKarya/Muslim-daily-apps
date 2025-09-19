@@ -1,0 +1,22 @@
+package com.nafaskarya.muslimdaily.layouts.theme
+
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+object Dimens {
+    val PaddingExtraSmall = 4.dp
+    val PaddingSmall = 8.dp
+    val PaddingMedium = 12.dp
+    val PaddingNormal = 16.dp // Tambahkan ini
+    val PaddingLarge = 24.dp
+    val PaddingXLarge = 32.dp
+
+    val IconSmall = 20.dp
+    val IconMedium = 28.dp
+
+    val TextSmall = 14.sp
+    val TextMedium = 16.sp
+    val TextLarge = 18.sp
+    val TextXLarge = 20.sp
+    val TextXXLarge = 28.sp
+}
