@@ -16,7 +16,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -160,7 +159,8 @@ fun PrayerTimeCard() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    var prayerData by rememberSaveable { mutableStateOf<PrayerTimesData?>(null) }
+    // ✅ pakai remember, bukan rememberSaveable
+    var prayerData by remember { mutableStateOf<PrayerTimesData?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var upcomingPrayerPeriod by remember { mutableStateOf(PrayerPeriod.ISHA) }
     var showStars by remember { mutableStateOf(false) }
@@ -209,19 +209,14 @@ fun PrayerTimeCard() {
             .collectLatest {
                 val nowCal = Calendar.getInstance()
 
-                // ✅ Error handling saat parsing waktu
                 val prayerCalendars = prayerData!!.times.mapValues { (_, timeStr) ->
                     runCatching {
                         Calendar.getInstance().apply {
                             time = timeFormatter.parse(timeStr) ?: Date()
                         }
-                    }.getOrElse {
-                        // Kalau gagal parse → fallback waktu sekarang
-                        Calendar.getInstance()
-                    }
+                    }.getOrElse { Calendar.getInstance() }
                 }
 
-                // ✅ Error handling pemilihan periode
                 val nextPeriod = try {
                     when {
                         nowCal.before(prayerCalendars.getValue(PrayerPeriod.ISHA)) &&
@@ -235,7 +230,6 @@ fun PrayerTimeCard() {
                         else -> PrayerPeriod.FAJR
                     }
                 } catch (e: Exception) {
-                    // fallback aman → default Subuh
                     PrayerPeriod.FAJR
                 }
 
@@ -247,7 +241,6 @@ fun PrayerTimeCard() {
                 )
             }
     }
-
 
     val cardColor = when (upcomingPrayerPeriod) {
         PrayerPeriod.FAJR -> Color(0xFF637AB9)
