@@ -31,8 +31,8 @@ fun GuestDashboard() {
     val items = listOf(
         BottomNavItem("Home", AppIcons.HomeFilled, AppIcons.HomeOutlined),
         BottomNavItem("Search", AppIcons.HomeFilled, AppIcons.HomeOutlined),
-        BottomNavItem("Qibla", AppIcons.HomeFilled, AppIcons.HomeOutlined),
-        BottomNavItem("Tasbih", AppIcons.HomeFilled, AppIcons.HomeOutlined),
+        BottomNavItem("Masjidku", AppIcons.HomeFilled, AppIcons.HomeOutlined),
+        BottomNavItem("Favorite", AppIcons.HomeFilled, AppIcons.HomeOutlined),
     )
 
     // ✅ gunakan remember biasa agar tidak crash
