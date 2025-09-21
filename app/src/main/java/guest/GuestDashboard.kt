@@ -1,172 +1,69 @@
 package com.nafaskarya.muslimdaily.guest
 
-import NewestCard
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import android.app.Activity
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
-import com.nafaskarya.muslimdaily.components.shared.SearchPage
-import com.nafaskarya.muslimdaily.components.widgets.*
-import com.nafaskarya.muslimdaily.components.widgets.prayertime.PrayerTimeCard
-import com.nafaskarya.muslimdaily.layouts.text.Strings
-import com.nafaskarya.muslimdaily.layouts.theme.AppIcons
-import com.nafaskarya.muslimdaily.layouts.theme.Dimens
-import com.nafaskarya.muslimdaily.ui.utils.Screen
+import com.nafaskarya.muslimdaily.components.widgets.data.guestDashboardNavItems
+import com.nafaskarya.muslimdaily.components.widgets.guestUser.CompactScreenLayout
+import com.nafaskarya.muslimdaily.components.widgets.guestUser.ExpandedScreenLayout
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun GuestDashboard() {
     val navController = rememberNavController()
-    val items = listOf(
-        BottomNavItem("Home", AppIcons.HomeFilled, AppIcons.HomeOutlined),
-        BottomNavItem("Search", AppIcons.HomeFilled, AppIcons.HomeOutlined),
-        BottomNavItem("Masjidku", AppIcons.HomeFilled, AppIcons.HomeOutlined),
-        BottomNavItem("Favorite", AppIcons.HomeFilled, AppIcons.HomeOutlined),
-    )
-
-    // ✅ gunakan remember biasa agar tidak crash
-    var selectedItemIndex by remember { mutableStateOf(0) }
+    // State untuk melacak item mana yang dipilih
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
     val navColor = Color(0xFF8B5A33)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        // Konten utama mengikuti nav
-        Box(modifier = Modifier.weight(1f)) {
-            NavHost(
+    // Deteksi ukuran layar
+    val activity = LocalContext.current as Activity
+    val windowSizeClass = calculateWindowSizeClass(activity)
+
+    // Logika navigasi menjadi lebih sederhana, menggunakan 'route' dari NavItem
+    val onNavItemClick: (Int) -> Unit = { index ->
+        selectedItemIndex = index
+        val selectedRoute = guestDashboardNavItems[index].route
+
+        navController.navigate(selectedRoute) {
+            // Pop up to the start destination of the graph to
+            // avoid building up a large stack of destinations
+            // on the back stack as users select items
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            // Avoid multiple copies of the same destination when
+            // re-selecting the same item
+            launchSingleTop = true
+            // Restore state when re-selecting a previously selected item
+            restoreState = true
+        }
+    }
+
+    // --- PEMILIHAN LAYOUT BERDASARKAN LEBAR LAYAR ---
+    when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> {
+            CompactScreenLayout(
                 navController = navController,
-                startDestination = Screen.Dashboard.route
-            ) {
-                composable(Screen.Dashboard.route) { DashboardContent() }
-                composable(Screen.Search.route) { SearchPage() }
-                // bisa tambahkan route lain: Qibla, Tasbih
-            }
-        }
-
-        // ✅ panggil bottom bar dari component
-        CustomBottomBar(
-            items = items,
-            selectedItemIndex = selectedItemIndex,
-            onItemSelected = { index ->
-                selectedItemIndex = index
-                when (index) {
-                    0 -> navController.navigate(Screen.Dashboard.route) {
-                        launchSingleTop = true
-                        popUpTo(Screen.Dashboard.route) { inclusive = true }
-                    }
-                    1 -> navController.navigate(Screen.Search.route) {
-                        launchSingleTop = true
-                        popUpTo(Screen.Dashboard.route) { inclusive = false }
-                    }
-                    // nanti bisa tambah navigasi untuk Qibla, Tasbih
-                }
-            },
-            navColor = navColor
-        )
-    }
-}
-
-@Composable
-fun DashboardContent(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        DashboardHeader()
-        LastReadCard()
-        Spacer(modifier = Modifier.height(24.dp))
-        Strings.PrayerTimeTitle
-        Spacer(modifier = Modifier.height(12.dp))
-        PrayerTimeCard()
-        Spacer(modifier = Modifier.height(16.dp))
-        FindMosqueButton(onClick = { /* ... */ })
-        Spacer(modifier = Modifier.height(24.dp))
-        MenuGrid()
-
-        Spacer(modifier = Modifier.height(24.dp))
-        NgajiOnlineSection()
-
-        Spacer(modifier = Modifier.height(24.dp))
-        NewestCard()
-    }
-}
-
-@Composable
-private fun DashboardHeader() {
-    val gradientStart = Color(0xFFE0FFE0)
-    val gradientEnd = Color.White
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(gradientStart, gradientEnd)
-                )
+                items = guestDashboardNavItems, // <-- Menggunakan list dari file baru
+                selectedItemIndex = selectedItemIndex,
+                onItemSelected = onNavItemClick,
+                navColor = navColor
             )
-            .padding(horizontal = Dimens.PaddingLarge, vertical = Dimens.PaddingXLarge)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopEnd),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { /* Notification */ }) {
-                Icon(
-                    imageVector = AppIcons.Notification,
-                    contentDescription = "Notifications",
-                    tint = Color.Black,
-                    modifier = Modifier.size(Dimens.IconMedium)
-                )
-            }
-            Spacer(modifier = Modifier.width(Dimens.PaddingMedium))
-            IconButton(onClick = { /* Menu */ }) {
-                Icon(
-                    imageVector = AppIcons.Menu,
-                    contentDescription = "Menu",
-                    tint = Color.Black,
-                    modifier = Modifier.size(Dimens.IconMedium)
-                )
-            }
         }
-        Column(
-            modifier = Modifier.align(Alignment.BottomStart)
-        ) {
-            Text(
-                text = Strings.Greeting,
-                fontSize = Dimens.TextXLarge,
-                fontWeight = FontWeight.Normal,
-                color = Color.DarkGray
-            )
-            Text(
-                text = Strings.UserName,
-                fontSize = Dimens.TextXXLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
+        else -> {
+            ExpandedScreenLayout(
+                navController = navController,
+                items = guestDashboardNavItems, // <-- Menggunakan list dari file baru
+                selectedItemIndex = selectedItemIndex,
+                onItemSelected = onNavItemClick,
+                navColor = navColor
             )
         }
     }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun GuestDashboardPreview() {
-    GuestDashboard()
 }
