@@ -1,9 +1,10 @@
-// build.gradle.kts (Module :app)
+// File: app/build.gradle.kts
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0" // <-- PERBAIKAN DI SINI
 }
 
 android {
@@ -69,6 +70,19 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
+
+    // ViewModel & Lifecycle for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")
+
+    // Proto DataStore for Caching (lebih modern dan aman dari SharedPreferences)
+    implementation("androidx.datastore:datastore:1.1.1")
+    implementation("com.google.protobuf:protobuf-javalite:3.25.3") // atau versi terbaru
+
+    // KotlinX Serialization for DataStore
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
 
 
 
