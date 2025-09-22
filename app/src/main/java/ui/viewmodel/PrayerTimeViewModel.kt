@@ -1,50 +1,37 @@
 package com.nafaskarya.muslimdaily.ui.viewmodel
 
 import android.app.Application
-import androidx.compose.ui.graphics.Color
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.nafaskarya.muslimdaily.ui.models.PrayerPeriod
 import com.nafaskarya.muslimdaily.ui.models.PrayerTimesData
 import com.nafaskarya.muslimdaily.ui.repository.PrayerTimeRepository
+import com.nafaskarya.muslimdaily.ui.utils.TimeOfDay
+import com.nafaskarya.muslimdaily.ui.utils.getCurrentTimeOfDay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-sealed interface PrayerTimeUiState {
-    data object Loading : PrayerTimeUiState
-    data class Success(
-        val prayerData: PrayerTimesData,
-        val upcomingPrayerPeriod: PrayerPeriod,
-        val showStars: Boolean,
-        val cardColor: Color,
-        val formattedDate: String,
-        val isRefreshing: Boolean = false // State refresh digabung di sini
-    ) : PrayerTimeUiState
-    data class Error(val message: String) : PrayerTimeUiState
-}
-
+@RequiresApi(Build.VERSION_CODES.O)
 class PrayerTimeViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = PrayerTimeRepository(application)
 
     private val _uiState = MutableStateFlow<PrayerTimeUiState>(PrayerTimeUiState.Loading)
     val uiState: StateFlow<PrayerTimeUiState> = _uiState.asStateFlow()
 
-    // State 'isRefreshing' yang terpisah sudah tidak diperlukan lagi
-
     init {
-        // Saat ViewModel dibuat, langsung panggil fungsi untuk load data awal
         refreshDataIfStale()
     }
 
-    // Fungsi untuk load data awal (dipanggil saat init)
+    @RequiresApi(Build.VERSION_CODES.O)
     fun refreshDataIfStale() {
         viewModelScope.launch {
-            _uiState.value = PrayerTimeUiState.Loading // Tampilkan shimmer/loading awal
+            _uiState.value = PrayerTimeUiState.Loading
             try {
                 repository.refreshPrayerTimesIfStale()
-                // Setelah refresh, ambil data terbaru dan buat state Success
                 val data = repository.getPrayerTimes()
                 _uiState.value = mapDataToSuccessState(data)
             } catch (e: Exception) {
@@ -53,51 +40,45 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    // Fungsi untuk pull-to-refresh (dipanggil dari UI)
+    @RequiresApi(Build.VERSION_CODES.O)
     fun refreshData() {
         viewModelScope.launch {
             val currentState = _uiState.value
-            // Hanya bisa refresh jika state saat ini adalah Success
             if (currentState is PrayerTimeUiState.Success) {
-                // 1. Tampilkan shimmer dengan mengubah state isRefreshing menjadi true
                 _uiState.value = currentState.copy(isRefreshing = true)
-
                 try {
-                    // 2. Panggil refresh paksa
                     repository.forceRefreshPrayerTimes()
-                    // 3. Ambil data terbaru dari repository
                     val newData = repository.getPrayerTimes()
-                    // 4. Buat state Success baru dengan data baru dan matikan shimmer
                     _uiState.value = mapDataToSuccessState(newData, isRefreshing = false)
                 } catch (e: Exception) {
-                    // Jika error, matikan shimmer dan kembali ke state data sebelumnya
                     _uiState.value = currentState.copy(isRefreshing = false)
                 }
             }
         }
     }
 
-    // Fungsi helper untuk mengubah data mentah menjadi state Success
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun mapDataToSuccessState(prayerData: PrayerTimesData, isRefreshing: Boolean = false): PrayerTimeUiState {
-        // Jika data masih default (kosong), anggap masih loading
         if (prayerData.cityName == "Tidak Diketahui") {
             return PrayerTimeUiState.Loading
         }
+
+        // Panggil helper untuk mendapatkan semua data UI terkait waktu
+        val timeOfDay = getCurrentTimeOfDay()
+
         val upcomingPeriod = calculateUpcomingPrayer(prayerData)
-        val showStars = upcomingPeriod in listOf(PrayerPeriod.MAGHRIB, PrayerPeriod.ISHA, PrayerPeriod.FAJR)
-        val cardColor = getCardColor(upcomingPeriod)
         val formattedDate = getFormattedDate()
+
         return PrayerTimeUiState.Success(
             prayerData = prayerData,
             upcomingPrayerPeriod = upcomingPeriod,
-            showStars = showStars,
-            cardColor = cardColor,
+            showStars = timeOfDay is TimeOfDay.Night || timeOfDay is TimeOfDay.LateNight,
             formattedDate = formattedDate,
+            cardImage = timeOfDay.cardImage,
             isRefreshing = isRefreshing
         )
     }
 
-    // Fungsi-fungsi private lainnya (tidak berubah)
     private fun calculateUpcomingPrayer(prayerData: PrayerTimesData): PrayerPeriod {
         val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
         val now = Calendar.getInstance()
@@ -131,16 +112,6 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
         return PrayerPeriod.FAJR
-    }
-
-    private fun getCardColor(period: PrayerPeriod): Color {
-        return when (period) {
-            PrayerPeriod.FAJR -> Color(0xFF637AB9)
-            PrayerPeriod.DHUHR -> Color(0xFF4CAF50)
-            PrayerPeriod.ASR -> Color(0xFFEF7722)
-            PrayerPeriod.MAGHRIB -> Color(0xFFC1554D)
-            PrayerPeriod.ISHA -> Color(0xFF31326F)
-        }
     }
 
     private fun getFormattedDate(): String {

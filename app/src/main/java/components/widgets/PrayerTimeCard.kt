@@ -18,9 +18,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nafaskarya.muslimdaily.components.shared.shimmer.ShimmerPrayerTimeCard
 import com.nafaskarya.muslimdaily.components.widgets.prayerTime.PrayerTimeCardContent
 import com.nafaskarya.muslimdaily.components.widgets.prayerTime.PrayerTimeHeader
+import com.nafaskarya.muslimdaily.components.widgets.prayerTime.PrayerTimeStatusCard // Pastikan import ini ada
 import com.nafaskarya.muslimdaily.ui.viewmodel.PrayerTimeUiState
 import com.nafaskarya.muslimdaily.ui.viewmodel.PrayerTimeViewModel
-
 
 @Composable
 fun PrayerTimeCard(
@@ -48,7 +48,7 @@ fun PrayerTimeCard(
     // Tampilan header dan konten/shimmer/status
     when (val state = uiState) {
         is PrayerTimeUiState.Loading -> {
-            ShimmerPrayerTimeCard() // <-- Memanggil dari file baru
+            ShimmerPrayerTimeCard()
         }
         is PrayerTimeUiState.Success -> {
             Column(
@@ -62,12 +62,13 @@ fun PrayerTimeCard(
                 Spacer(Modifier.height(12.dp))
 
                 if (state.isRefreshing) {
-                    ShimmerPrayerTimeCard() // <-- Memanggil dari file baru
+                    ShimmerPrayerTimeCard()
                 } else {
+                    // --- PERBAIKAN UTAMA DI SINI ---
                     PrayerTimeCardContent(
                         prayerData = state.prayerData,
                         upcomingPrayerPeriod = state.upcomingPrayerPeriod,
-                        cardColor = state.cardColor,
+                        imageRes = state.cardImage, // <-- Menggunakan imageRes, bukan cardColor
                         showStars = state.showStars,
                         gregorianDateText = state.formattedDate
                     )
@@ -81,10 +82,8 @@ fun PrayerTimeCard(
             ) {
                 PrayerTimeHeader(cityName = "Gagal", onLocationClick = {})
                 Spacer(Modifier.height(12.dp))
-                PrayerTimeStatusCard(statusText = state.message) // <-- Memanggil dari file baru
+                PrayerTimeStatusCard(statusText = state.message)
             }
         }
     }
 }
-
-// HAPUS SEMUA DEFINISI PLACEHOLDER DARI SINI

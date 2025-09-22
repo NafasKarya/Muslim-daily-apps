@@ -1,86 +1,95 @@
+// File: com/nafaskarya/muslimdaily/components/widgets/guestUser/ScreenLayouts.kt
+
 package com.nafaskarya.muslimdaily.components.widgets.guestUser
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.navigation.NavHostController
-import com.nafaskarya.muslimdaily.components.widgets.CustomBottomBar
+import com.nafaskarya.muslimdaily.components.shared.SearchPage
+import com.nafaskarya.muslimdaily.components.widgets.ResponsiveAppNavigation
 import com.nafaskarya.muslimdaily.components.widgets.data.NavItem
 
-/**
- * Layout untuk layar COMPACT (HP), menggunakan Bottom Navigation Bar.
- */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CompactScreenLayout(
-    navController: NavHostController,
+    windowSizeClass: WindowWidthSizeClass,
+    pagerState: PagerState,
     items: List<NavItem>,
     selectedItemIndex: Int,
-    onItemSelected: (Int) -> Unit,
-    navColor: Color
+    onItemSelected: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
+        // Konten utama (Pager)
         Box(modifier = Modifier.weight(1f)) {
-            AppContent(navController)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { pageIndex ->
+                when (pageIndex) {
+                    0 -> DashboardContent()
+                    1 -> SearchPage()
+                    // ... tambahkan halaman lain di sini
+                }
+            }
         }
-        CustomBottomBar(
+
+        // PERBAIKAN: Memanggil ResponsiveAppNavigation, bukan CustomBottomBar
+        ResponsiveAppNavigation(
+            windowSizeClass = windowSizeClass,
             items = items,
             selectedItemIndex = selectedItemIndex,
-            onItemSelected = onItemSelected,
-            navColor = navColor
+            onItemSelected = onItemSelected
         )
     }
 }
 
-/**
- * Layout untuk layar MEDIUM & EXPANDED (Tablet), menggunakan Navigation Rail di samping.
- */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExpandedScreenLayout(
-    navController: NavHostController,
+    windowSizeClass: WindowWidthSizeClass,
+    pagerState: PagerState,
     items: List<NavItem>,
     selectedItemIndex: Int,
-    onItemSelected: (Int) -> Unit,
-    navColor: Color
+    onItemSelected: (Int) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        NavigationRail(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ) {
-            items.forEachIndexed { index, item ->
-                NavigationRailItem(
-                    selected = selectedItemIndex == index,
-                    onClick = { onItemSelected(index) },
-                    icon = {
-                        Icon(
-                            imageVector = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
-                            contentDescription = item.title
-                        )
-                    },
-                    label = { Text(item.title) },
-                    colors = NavigationRailItemDefaults.colors(
-                        selectedIconColor = navColor,
-                        selectedTextColor = navColor,
-                        indicatorColor = navColor.copy(alpha = 0.1f)
-                    )
-                )
-            }
-        }
+        // PERBAIKAN: Menampilkan NavigationRail di samping
+        ResponsiveAppNavigation(
+            windowSizeClass = windowSizeClass,
+            items = items,
+            selectedItemIndex = selectedItemIndex,
+            onItemSelected = onItemSelected
+        )
+
+        // Konten utama (Pager)
         Box(modifier = Modifier.weight(1f)) {
-            AppContent(navController)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { pageIndex ->
+                when (pageIndex) {
+                    0 -> DashboardContent()
+                    1 -> SearchPage()
+                    // ... tambahkan halaman lain di sini
+                }
+            }
         }
     }
 }

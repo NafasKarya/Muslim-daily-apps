@@ -1,10 +1,8 @@
-// File: app/build.gradle.kts
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0" // <-- PERBAIKAN DI SINI
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
 
 android {
@@ -61,12 +59,13 @@ dependencies {
 
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+
+    // ✅ Coil untuk memuat gambar, termasuk GIF
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-gif:2.6.0") // <-- DEPENDENSI BARU UNTUK GIF
 
-    // ✅ Google Play Services untuk Lokasi (GPS)
+    // Google Play Services untuk Lokasi (GPS)
     implementation("com.google.android.gms:play-services-location:21.3.0")
-
-    // ✅ TAMBAHKAN INI: Untuk membuat fungsi GPS lebih mudah dipakai dengan Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
@@ -77,16 +76,15 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")
 
-    // Proto DataStore for Caching (lebih modern dan aman dari SharedPreferences)
+    // Proto DataStore for Caching
     implementation("androidx.datastore:datastore:1.1.1")
-    implementation("com.google.protobuf:protobuf-javalite:3.25.3") // atau versi terbaru
+    implementation("com.google.protobuf:protobuf-javalite:3.25.3")
 
     // KotlinX Serialization for DataStore
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
-
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+
