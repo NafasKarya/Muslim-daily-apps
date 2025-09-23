@@ -11,34 +11,34 @@ object AppIcons {
 
     // --- Ikon dengan satu state (tidak punya versi aktif/inaktif) ---
     @DrawableRes val Notification: Int = R.drawable.ic_notification
-    @DrawableRes val Menu: Int = R.drawable.ic_menu
-    @DrawableRes val ChevronRight: Int = R.drawable.ic_chevron_right
+    @DrawableRes val Menu: Int = R.drawable.ic_hamburger
+    @DrawableRes val ChevronRight: Int = R.drawable.ic_arrow
     @DrawableRes val Add: Int = R.drawable.ic_add
 
     // --- Ikon yang memiliki state aktif dan inaktif ---
 
     object Home {
-        @DrawableRes val active: Int = R.drawable.ic_home_filled
-        @DrawableRes val inactive: Int = R.drawable.ic_home_outlined
+        @DrawableRes val active: Int = R.drawable.ic_home_active
+        @DrawableRes val inactive: Int = R.drawable.ic_home_inactive
     }
 
     object Search {
-        @DrawableRes val active: Int = R.drawable.ic_search_filled
-        @DrawableRes val inactive: Int = R.drawable.ic_search_outlined
+        @DrawableRes val active: Int = R.drawable.ic_search_active
+        @DrawableRes val inactive: Int = R.drawable.ic_search
     }
 
     object Mosque {
-        @DrawableRes val active: Int = R.drawable.ic_mosque_filled
-        @DrawableRes val inactive: Int = R.drawable.ic_mosque_outlined
+        @DrawableRes val active: Int = R.drawable.ic_mosque_active
+        @DrawableRes val inactive: Int = R.drawable.ic_mosque
     }
 
     object Favorite {
-        @DrawableRes val active: Int = R.drawable.ic_favorite_filled
-        @DrawableRes val inactive: Int = R.drawable.ic_favorite_outlined
+        @DrawableRes val active: Int = R.drawable.ic_favorite_active
+        @DrawableRes val inactive: Int = R.drawable.ic_favorite
     }
 
     object Profile {
-        @DrawableRes val active: Int = R.drawable.ic_profile_filled
-        @DrawableRes val inactive: Int = R.drawable.ic_profile_outlined
+        @DrawableRes val active: Int = R.drawable.ic_profile
+        @DrawableRes val inactive: Int = R.drawable.ic_profile
     }
 }

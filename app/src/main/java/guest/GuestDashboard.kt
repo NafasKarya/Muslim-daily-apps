@@ -1,68 +1,65 @@
 package com.nafaskarya.muslimdaily.guest
 
 import android.app.Activity
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.rememberNavController
 import com.nafaskarya.muslimdaily.components.widgets.data.guestDashboardNavItems
 import com.nafaskarya.muslimdaily.components.widgets.guestUser.CompactScreenLayout
 import com.nafaskarya.muslimdaily.components.widgets.guestUser.ExpandedScreenLayout
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun GuestDashboard() {
-    val navController = rememberNavController()
-    // State untuk melacak item mana yang dipilih
-    var selectedItemIndex by remember { mutableIntStateOf(0) }
-    val navColor = Color(0xFF8B5A33)
+    val coroutineScope = rememberCoroutineScope()
+    // val navColor = Color(0xFF8B5A33) // <-- DIHAPUS: Warna sebaiknya diatur dari Theme
+
+    // --- SETUP PAGERSTATE ---
+    val pagerState = rememberPagerState {
+        guestDashboardNavItems.size
+    }
+    // State untuk melacak item yang dipilih, sekarang dikontrol oleh Pager
+    val selectedItemIndex by remember { derivedStateOf { pagerState.currentPage } }
+    // ------------------------------------------
 
     // Deteksi ukuran layar
     val activity = LocalContext.current as Activity
-    val windowSizeClass = calculateWindowSizeClass(activity)
+    val windowSizeClass = calculateWindowSizeClass(activity).widthSizeClass // Langsung ambil width class
 
-    // Logika navigasi menjadi lebih sederhana, menggunakan 'route' dari NavItem
+    // Logika klik item navigasi sekarang mengontrol Pager
     val onNavItemClick: (Int) -> Unit = { index ->
-        selectedItemIndex = index
-        val selectedRoute = guestDashboardNavItems[index].route
-
-        navController.navigate(selectedRoute) {
-            // Pop up to the start destination of the graph to
-            // avoid building up a large stack of destinations
-            // on the back stack as users select items
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            // Avoid multiple copies of the same destination when
-            // re-selecting the same item
-            launchSingleTop = true
-            // Restore state when re-selecting a previously selected item
-            restoreState = true
+        coroutineScope.launch {
+            pagerState.animateScrollToPage(index)
         }
     }
 
     // --- PEMILIHAN LAYOUT BERDASARKAN LEBAR LAYAR ---
-    when (windowSizeClass.widthSizeClass) {
+    when (windowSizeClass) {
         WindowWidthSizeClass.Compact -> {
             CompactScreenLayout(
-                navController = navController,
-                items = guestDashboardNavItems, // <-- Menggunakan list dari file baru
+                // PERUBAHAN 1: Meneruskan windowSizeClass
+                windowSizeClass = windowSizeClass,
+                pagerState = pagerState,
+                items = guestDashboardNavItems,
                 selectedItemIndex = selectedItemIndex,
-                onItemSelected = onNavItemClick,
-                navColor = navColor
+                onItemSelected = onNavItemClick
+                // PERUBAHAN 2: Parameter navColor dihapus
             )
         }
-        else -> {
+        else -> { // Medium & Expanded
             ExpandedScreenLayout(
-                navController = navController,
-                items = guestDashboardNavItems, // <-- Menggunakan list dari file baru
+                // PERUBAHAN 1: Meneruskan windowSizeClass
+                windowSizeClass = windowSizeClass,
+                pagerState = pagerState,
+                items = guestDashboardNavItems,
                 selectedItemIndex = selectedItemIndex,
-                onItemSelected = onNavItemClick,
-                navColor = navColor
+                onItemSelected = onNavItemClick
+                // PERUBAHAN 2: Parameter navColor dihapus
             )
         }
     }
