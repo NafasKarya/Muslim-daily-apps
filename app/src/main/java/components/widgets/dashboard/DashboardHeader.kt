@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.nafaskarya.muslimdaily.layouts.text.Strings
 import com.nafaskarya.muslimdaily.layouts.theme.AppIcons
 import com.nafaskarya.muslimdaily.layouts.theme.Dimens
-import com.nafaskarya.muslimdaily.ui.utils.getCurrentTimeOfDay // <-- 1. Import helper
+import com.nafaskarya.muslimdaily.ui.utils.getCurrentTimeGreeting // <--- Fix import!
 
 /**
  * Header yang tampil saat di-scroll ke bawah.
@@ -53,10 +53,11 @@ fun TopAppBarWhenScrolled() {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DashboardHeader() {
-    // 2. Panggil fungsi untuk mendapatkan data periode waktu saat ini
-    val timeOfDay = remember { getCurrentTimeOfDay() }
+    // 1. Pakai getCurrentTimeGreeting, bukan getCurrentTimeOfDay
+    val timeGreeting = remember { getCurrentTimeGreeting() }
+    val timeOfDay = timeGreeting.timeOfDay
 
-    // Membuat gradient dari warna dinamis ke warna putih
+    // 2. Gradient dari backgroundColor ke putih
     val gradientBrush = Brush.verticalGradient(
         colors = listOf(timeOfDay.backgroundColor, Color.White)
     )
@@ -65,7 +66,6 @@ fun DashboardHeader() {
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = Dimens.DashboardHeaderHeight)
-            // 3. Gunakan warna dinamis untuk latar belakang
             .background(brush = gradientBrush)
             .padding(horizontal = Dimens.PaddingLarge, vertical = Dimens.PaddingXLarge)
     ) {
@@ -81,7 +81,6 @@ fun DashboardHeader() {
                 Icon(
                     painter = painterResource(id = AppIcons.Notification),
                     contentDescription = "Notifications",
-                    // 4. Gunakan warna teks dinamis untuk ikon agar kontras
                     tint = timeOfDay.textColor,
                     modifier = Modifier.size(Dimens.IconMedium)
                 )
@@ -91,19 +90,16 @@ fun DashboardHeader() {
             modifier = Modifier.align(Alignment.BottomStart)
         ) {
             Text(
-                // 5. Gunakan teks sapaan dinamis dari TimeHelper
-                text = timeOfDay.greetingText,
+                text = timeGreeting.greetingText, // <--- Ambil dari holder
                 fontSize = Dimens.TextLarge,
                 fontWeight = FontWeight.Normal,
-                // 6. Gunakan warna teks dinamis agar selalu terbaca
-                color = timeOfDay.textColor.copy(alpha = 0.8f) // Dibuat sedikit transparan
+                color = timeOfDay.textColor.copy(alpha = 0.8f)
             )
             Spacer(modifier = Modifier.height(Dimens.PaddingExtraSmall))
             Text(
                 text = Strings.UserName,
                 fontSize = Dimens.TextHeading,
                 fontWeight = FontWeight.Bold,
-                // 7. Gunakan warna teks dinamis agar selalu terbaca
                 color = timeOfDay.textColor
             )
         }

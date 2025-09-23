@@ -1,10 +1,5 @@
 package com.nafaskarya.muslimdaily
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -26,30 +21,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-class SplashActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        // 🔑 SplashScreen API (Android 12+) supaya nggak muncul logo android default
-        installSplashScreen()
-        super.onCreate(savedInstanceState)
-
-        setContent {
-            SplashScreen {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
-            }
-        }
-    }
-}
-
 @Composable
 fun SplashScreen(onTimeout: () -> Unit) {
     val alpha = remember { Animatable(0f) }
 
+    // Efek animasi fade in, delay, dan fade out
     LaunchedEffect(Unit) {
         alpha.animateTo(1f, tween(1000)) // fade in 1 detik
         delay(2000)                      // tahan 2 detik
         alpha.animateTo(0f, tween(500))  // fade out 0.5 detik
-        onTimeout()
+        onTimeout()                      // Panggil aksi setelah selesai
     }
 
     val configuration = LocalConfiguration.current
@@ -59,7 +40,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
-            .alpha(alpha.value),
+            .alpha(alpha.value), // Terapkan animasi alpha (transparansi)
         contentAlignment = Alignment.Center
     ) {
         // ✅ Logo di tengah
@@ -77,7 +58,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
             )
         }
 
-        // ✅ "from NafasKarya" di bawah
+        // ✅ Teks "from NafasKarya" di bawah
         Text(
             text = "from NafasKarya",
             color = Color.Gray,

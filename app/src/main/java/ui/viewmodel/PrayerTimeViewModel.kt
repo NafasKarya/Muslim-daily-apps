@@ -1,17 +1,21 @@
-package com.nafaskarya.muslimdaily.ui.viewmodel
+package ui.viewmodel
 
 import android.app.Application
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.nafaskarya.muslimdaily.ui.models.PrayerPeriod
 import com.nafaskarya.muslimdaily.ui.models.PrayerTimesData
-import com.nafaskarya.muslimdaily.ui.repository.PrayerTimeRepository
 import com.nafaskarya.muslimdaily.ui.utils.TimeOfDay
-import com.nafaskarya.muslimdaily.ui.utils.getCurrentTimeOfDay
-import kotlinx.coroutines.flow.*
+import com.nafaskarya.muslimdaily.ui.utils.getCurrentTimeGreeting
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import ui.repository.LocationPermissionDeniedException
+import ui.repository.PrayerTimeRepository
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,7 +38,11 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
                 repository.refreshPrayerTimesIfStale()
                 val data = repository.getPrayerTimes()
                 _uiState.value = mapDataToSuccessState(data)
+            } catch (e: LocationPermissionDeniedException) {
+                Log.w("PrayerTimeViewModel", "Izin lokasi ditolak saat memuat awal:", e)
+                _uiState.value = PrayerTimeUiState.Error("Izin lokasi diperlukan untuk menampilkan data.")
             } catch (e: Exception) {
+                Log.e("PrayerTimeViewModel", "Gagal mengambil data awal:", e)
                 _uiState.value = PrayerTimeUiState.Error("Gagal mengambil data awal.")
             }
         }
@@ -50,22 +58,32 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
                     repository.forceRefreshPrayerTimes()
                     val newData = repository.getPrayerTimes()
                     _uiState.value = mapDataToSuccessState(newData, isRefreshing = false)
+                } catch (e: LocationPermissionDeniedException) {
+                    Log.w("PrayerTimeViewModel", "Izin lokasi ditolak saat refresh manual:", e)
+                    _uiState.value = PrayerTimeUiState.Error("Izin lokasi diperlukan untuk refresh.")
                 } catch (e: Exception) {
+                    Log.e("PrayerTimeViewModel", "Gagal melakukan refresh manual:", e)
                     _uiState.value = currentState.copy(isRefreshing = false)
                 }
+            } else if (currentState is PrayerTimeUiState.Error) {
+                refreshDataIfStale()
             }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun mapDataToSuccessState(prayerData: PrayerTimesData, isRefreshing: Boolean = false): PrayerTimeUiState {
+    private fun mapDataToSuccessState(
+        prayerData: PrayerTimesData,
+        isRefreshing: Boolean = false
+    ): PrayerTimeUiState {
         if (prayerData.cityName == "Tidak Diketahui") {
-            return PrayerTimeUiState.Loading
+            return PrayerTimeUiState.Error("Gagal mendapatkan lokasi. Mohon berikan izin dan coba lagi.")
         }
 
-        // Panggil helper untuk mendapatkan semua data UI terkait waktu
-        val timeOfDay = getCurrentTimeOfDay()
+        val timeGreeting = getCurrentTimeGreeting()
+        val timeOfDay = timeGreeting.timeOfDay
 
+        // --- Perhitungan yang diperbaiki akan digunakan di sini ---
         val upcomingPeriod = calculateUpcomingPrayer(prayerData)
         val formattedDate = getFormattedDate()
 
@@ -79,43 +97,52 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
         )
     }
 
+    // --- FUNGSI UTAMA YANG DIPERBAIKI ---
     private fun calculateUpcomingPrayer(prayerData: PrayerTimesData): PrayerPeriod {
         val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
         val now = Calendar.getInstance()
 
-        val prayerCalendars = prayerData.times.mapValues { (_, timeStr) ->
-            runCatching {
-                Calendar.getInstance().apply {
-                    val parsedTime = timeFormatter.parse(timeStr)
-                    if (parsedTime != null) {
-                        val cal = Calendar.getInstance()
-                        cal.time = parsedTime
-                        set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY))
-                        set(Calendar.MINUTE, cal.get(Calendar.MINUTE))
-                        set(Calendar.SECOND, 0)
-                    }
-                }
-            }.getOrNull()
-        }
-
-        val sortedPrayers = listOf(
-            PrayerPeriod.FAJR to prayerCalendars[PrayerPeriod.FAJR],
-            PrayerPeriod.DHUHR to prayerCalendars[PrayerPeriod.DHUHR],
-            PrayerPeriod.ASR to prayerCalendars[PrayerPeriod.ASR],
-            PrayerPeriod.MAGHRIB to prayerCalendars[PrayerPeriod.MAGHRIB],
-            PrayerPeriod.ISHA to prayerCalendars[PrayerPeriod.ISHA]
+        // 1. Definisikan urutan sholat yang benar dan lengkap
+        val prayerOrder = listOf(
+            PrayerPeriod.TAHAJUD,
+            PrayerPeriod.FAJR,
+            PrayerPeriod.SYURUQ,
+            PrayerPeriod.DHUHA,
+            PrayerPeriod.DHUHR,
+            PrayerPeriod.ASR,
+            PrayerPeriod.MAGHRIB,
+            PrayerPeriod.ISHA
         )
 
-        for ((period, cal) in sortedPrayers) {
-            if (cal != null && now.before(cal)) {
-                return period
-            }
-        }
-        return PrayerPeriod.FAJR
+        val prayerCalendars = prayerData.times.mapNotNull { (period, timeStr) ->
+            runCatching {
+                val parsedTime = timeFormatter.parse(timeStr) ?: return@runCatching null
+                val prayerCal = Calendar.getInstance().apply {
+                    time = parsedTime
+                    set(Calendar.SECOND, 0)
+                }
+
+                // 2. Jika waktu sholat sudah lewat hari ini, tambahkan 1 hari (anggap besok)
+                if (prayerCal.before(now)) {
+                    prayerCal.add(Calendar.DAY_OF_YEAR, 1)
+                }
+                period to prayerCal
+            }.getOrNull()
+        }.toMap()
+
+        // 3. Urutkan waktu sholat berdasarkan urutan yang benar, lalu cari yang paling dekat di masa depan
+        val upcomingPrayer = prayerOrder
+            .mapNotNull { period -> prayerCalendars[period]?.let { period to it } }
+            .minByOrNull { (_, cal) -> cal.timeInMillis }
+
+        // 4. Jika ada, kembalikan periodenya. Jika tidak, kembalikan yang pertama dalam urutan.
+        return upcomingPrayer?.first ?: prayerOrder.first()
     }
+    // ------------------------------------
 
     private fun getFormattedDate(): String {
         val dateFormatter = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("id", "ID"))
         return dateFormatter.format(Calendar.getInstance().time)
     }
 }
+

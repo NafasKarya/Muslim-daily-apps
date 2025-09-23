@@ -25,8 +25,8 @@ import com.nafaskarya.muslimdaily.components.widgets.dashboard.DashboardHeader
 import com.nafaskarya.muslimdaily.components.widgets.dashboard.TopAppBarWhenScrolled
 import com.nafaskarya.muslimdaily.layouts.text.Strings
 import com.nafaskarya.muslimdaily.layouts.theme.Dimens
-import com.nafaskarya.muslimdaily.ui.viewmodel.PrayerTimeUiState
-import com.nafaskarya.muslimdaily.ui.viewmodel.PrayerTimeViewModel
+import ui.viewmodel.PrayerTimeUiState
+import ui.viewmodel.PrayerTimeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)

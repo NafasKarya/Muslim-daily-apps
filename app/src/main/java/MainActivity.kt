@@ -1,9 +1,9 @@
-package com.nafaskarya.muslimdaily
+package com.nafaskarya.muslimdaily // Pastikan package Anda benar
 
-import android.graphics.Color // <-- Import ini
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle // <-- Import ini
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
@@ -11,14 +11,17 @@ import com.nafaskarya.muslimdaily.guest.GuestDashboard
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Modifikasi enableEdgeToEdge untuk memastikan ikon status bar gelap
+        // 1. Aktifkan mode Edge-to-Edge sebelum super.onCreate()
+        // Ini adalah praktik terbaik untuk menghindari flicker.
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.light(
-                Color.TRANSPARENT, Color.TRANSPARENT
+            // 2. Gunakan .auto untuk status bar yang "pintar"
+            // Ikon akan otomatis terang/gelap menyesuaikan tema.
+            statusBarStyle = SystemBarStyle.auto(
+                Color.TRANSPARENT,
+                Color.TRANSPARENT,
             )
         )
+        super.onCreate(savedInstanceState)
 
         setContent {
             MaterialTheme {

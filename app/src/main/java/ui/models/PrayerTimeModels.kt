@@ -6,7 +6,14 @@ import kotlinx.serialization.Serializable
  * Enum untuk merepresentasikan periode waktu sholat.
  */
 enum class PrayerPeriod {
-    FAJR, DHUHR, ASR, MAGHRIB, ISHA
+    TAHAJUD, // 🌃 Paling awal, biasanya jam 2-4 pagi
+    FAJR,
+    SYURUQ,  // Setelah Subuh, waktu syuruq (terbit matahari)
+    DHUHA,   // Setelah syuruq sampai sebelum dzuhur
+    DHUHR,
+    ASR,
+    MAGHRIB,
+    ISHA
 }
 
 /**

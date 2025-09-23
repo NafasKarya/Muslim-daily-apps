@@ -1,4 +1,4 @@
-package com.nafaskarya.muslimdaily.ui.viewmodel
+package ui.viewmodel
 
 import androidx.annotation.DrawableRes
 import com.nafaskarya.muslimdaily.ui.models.PrayerPeriod
@@ -11,7 +11,7 @@ sealed interface PrayerTimeUiState {
         val upcomingPrayerPeriod: PrayerPeriod,
         val showStars: Boolean,
         val formattedDate: String,
-        @DrawableRes val cardImage: Int, // <-- Menggunakan cardImage
+        @DrawableRes val cardImage: Int,
         val isRefreshing: Boolean = false
     ) : PrayerTimeUiState
     data class Error(val message: String) : PrayerTimeUiState
