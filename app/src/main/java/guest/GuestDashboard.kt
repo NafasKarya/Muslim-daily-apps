@@ -7,31 +7,26 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.nafaskarya.muslimdaily.components.widgets.data.guestDashboardNavItems
 import com.nafaskarya.muslimdaily.components.widgets.guestUser.CompactScreenLayout
 import com.nafaskarya.muslimdaily.components.widgets.guestUser.ExpandedScreenLayout
 import kotlinx.coroutines.launch
 
+// Anotasi @RequiresApi sudah dihapus
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun GuestDashboard() {
+    // Logika Snackbar dihilangkan karena tidak ada Scaffold
     val coroutineScope = rememberCoroutineScope()
-    // val navColor = Color(0xFF8B5A33) // <-- DIHAPUS: Warna sebaiknya diatur dari Theme
 
-    // --- SETUP PAGERSTATE ---
-    val pagerState = rememberPagerState {
-        guestDashboardNavItems.size
-    }
-    // State untuk melacak item yang dipilih, sekarang dikontrol oleh Pager
+    val pagerState = rememberPagerState { guestDashboardNavItems.size }
     val selectedItemIndex by remember { derivedStateOf { pagerState.currentPage } }
-    // ------------------------------------------
 
-    // Deteksi ukuran layar
     val activity = LocalContext.current as Activity
-    val windowSizeClass = calculateWindowSizeClass(activity).widthSizeClass // Langsung ambil width class
+    val windowSizeClass = calculateWindowSizeClass(activity).widthSizeClass
 
-    // Logika klik item navigasi sekarang mengontrol Pager
     val onNavItemClick: (Int) -> Unit = { index ->
         coroutineScope.launch {
             pagerState.animateScrollToPage(index)
@@ -39,27 +34,30 @@ fun GuestDashboard() {
     }
 
     // --- PEMILIHAN LAYOUT BERDASARKAN LEBAR LAYAR ---
+    // Langsung panggil 'when' block tanpa Scaffold
     when (windowSizeClass) {
         WindowWidthSizeClass.Compact -> {
             CompactScreenLayout(
-                // PERUBAHAN 1: Meneruskan windowSizeClass
+                modifier = Modifier, // innerPadding tidak ada lagi
                 windowSizeClass = windowSizeClass,
                 pagerState = pagerState,
                 items = guestDashboardNavItems,
                 selectedItemIndex = selectedItemIndex,
-                onItemSelected = onNavItemClick
-                // PERUBAHAN 2: Parameter navColor dihapus
+                onItemSelected = onNavItemClick,
+                // onShowSnackbar harus tetap ada, tapi tidak akan melakukan apa-apa
+                onShowSnackbar = { /* tidak ada aksi */ }
             )
         }
         else -> { // Medium & Expanded
             ExpandedScreenLayout(
-                // PERUBAHAN 1: Meneruskan windowSizeClass
+                modifier = Modifier, // innerPadding tidak ada lagi
                 windowSizeClass = windowSizeClass,
                 pagerState = pagerState,
                 items = guestDashboardNavItems,
                 selectedItemIndex = selectedItemIndex,
-                onItemSelected = onNavItemClick
-                // PERUBAHAN 2: Parameter navColor dihapus
+                onItemSelected = onNavItemClick,
+                // onShowSnackbar harus tetap ada, tapi tidak akan melakukan apa-apa
+                onShowSnackbar = { /* tidak ada aksi */ }
             )
         }
     }

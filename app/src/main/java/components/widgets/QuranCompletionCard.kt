@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,28 +32,32 @@ fun LastReadCard(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
+        // Box berfungsi sebagai container untuk menumpuk elemen
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp) // tinggi card tetap
-                .background(Color(0xFF508747)) // hijau solid
+                .height(140.dp)
         ) {
-            // Gambar Qur'an (Track) - agak ke bawah & kiri
+            // 1. Gambar sebagai Latar Belakang Utama, menutupi seluruh Box
             Image(
                 painter = painterResource(id = AppImages.TrackQuran),
-                contentDescription = "Track Quran Illustration",
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = (-8).dp, y = 6.dp) // geser ke kiri & bawah
-                    .fillMaxHeight()
-                    .aspectRatio(1f)
+                contentDescription = "Background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop // Memastikan gambar mengisi area tanpa distorsi
             )
 
-            // Teks tetap di sisi kiri
+            // 2. Lapisan Scrim (overlay gelap) agar teks mudah dibaca
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)) // Sesuaikan alpha untuk tingkat kegelapan
+            )
+
+            // 3. Teks ditampilkan di lapisan paling atas
             Column(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(start = 20.dp, top = 16.dp, bottom = 20.dp, end = 120.dp),
+                    .fillMaxSize() // Teks mengisi seluruh Box agar alignment berfungsi
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(

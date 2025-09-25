@@ -1,3 +1,5 @@
+// HAPUS SEMUA ISI build.gradle.kts LAMA ANDA, LALU GANTI DENGAN INI
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -30,12 +32,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
 
     buildFeatures {
@@ -48,21 +51,26 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    // Menggunakan Bill of Materials (BOM) untuk versi Compose yang konsisten
     val composeBom = platform("androidx.compose:compose-bom:2023.10.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
+    // Dependensi dasar Compose
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
+    // Menambahkan library untuk koleksi ikon Material yang lengkap
+    implementation("androidx.compose.material:material-icons-extended")
+
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 
-    // ✅ Coil untuk memuat gambar, termasuk GIF
+    // Coil untuk memuat gambar, termasuk GIF
     implementation("io.coil-kt:coil-compose:2.6.0")
-    implementation("io.coil-kt:coil-gif:2.6.0") // <-- DEPENDENSI BARU UNTUK GIF
+    implementation("io.coil-kt:coil-gif:2.6.0")
 
     // Google Play Services untuk Lokasi (GPS)
     implementation("com.google.android.gms:play-services-location:21.3.0")
@@ -83,8 +91,10 @@ dependencies {
     // KotlinX Serialization for DataStore
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
 
+    // Mengaktifkan dukungan API modern di Android versi lama
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
-

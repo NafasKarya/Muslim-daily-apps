@@ -12,7 +12,8 @@ sealed interface PrayerTimeUiState {
         val showStars: Boolean,
         val formattedDate: String,
         @DrawableRes val cardImage: Int,
-        val isRefreshing: Boolean = false
+        val isRefreshing: Boolean = false,
+        val greeting: String // <-- TAMBAHKAN BARIS INI
     ) : PrayerTimeUiState
     data class Error(val message: String) : PrayerTimeUiState
 }

@@ -2,10 +2,11 @@ package com.nafaskarya.muslimdaily.components.widgets
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,21 +15,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nafaskarya.muslimdaily.layouts.theme.AppImages
 
-// Data class menu
+// Data class untuk setiap item menu
 data class MenuItem(
     val title: String,
     @DrawableRes val iconRes: Int
 )
 
+// Komponen utama yang menampilkan seluruh grid menu
 @Composable
 fun MenuGrid() {
     val menuItems = listOf(
         MenuItem("Quran", AppImages.AlQuran),
-        MenuItem("Adzan", AppImages.Reminder), // contoh icon
+        MenuItem("Adzan", AppImages.Reminder),
         MenuItem("Qibla", AppImages.Qibla),
         MenuItem("Donation", AppImages.DzikirDaily),
         MenuItem("All", AppImages.DuaDaily)
@@ -53,7 +56,7 @@ fun MenuGrid() {
             menuItems.forEach { item ->
                 MenuItemCard(
                     menuItem = item,
-                    onClick = { /* TODO: aksi */ },
+                    onClick = { /* TODO: Tambahkan aksi navigasi di sini */ },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -61,26 +64,32 @@ fun MenuGrid() {
     }
 }
 
+// Komponen untuk satu kartu item menu
 @Composable
 fun MenuItemCard(menuItem: MenuItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.clickable { onClick() }
     ) {
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .background(
-                    color = Color(0xFF1ABC9C), // hijau teal
-                    shape = RoundedCornerShape(16.dp)
-                ),
-            contentAlignment = Alignment.Center
+        Card(
+            modifier = Modifier.size(64.dp),
+            shape = RoundedCornerShape(16.dp),
+            // Elevation untuk memberikan efek bayangan (shadow)
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            // Warna latar belakang kartu adalah putih
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
-            Image(
-                painter = painterResource(id = menuItem.iconRes),
-                contentDescription = menuItem.title,
-                modifier = Modifier.size(28.dp)
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = menuItem.iconRes),
+                    contentDescription = menuItem.title,
+                    modifier = Modifier.size(28.dp)
+                    // Tidak ada colorFilter agar warna asli ikon tampil
+                )
+            }
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
@@ -91,4 +100,11 @@ fun MenuItemCard(menuItem: MenuItem, onClick: () -> Unit, modifier: Modifier = M
             textAlign = TextAlign.Center
         )
     }
+}
+
+// Preview untuk melihat hasil di Android Studio
+@Preview(showBackground = true)
+@Composable
+private fun MenuGridPreview() {
+    MenuGrid()
 }

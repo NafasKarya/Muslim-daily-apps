@@ -1,4 +1,4 @@
-package com.nafaskarya.muslimdaily // Pastikan package Anda benar
+package com.nafaskarya.muslimdaily
 
 import android.graphics.Color
 import android.os.Bundle
@@ -6,16 +6,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+// import com.jakewharton.threetenabp.AndroidThreeTen // <-- 1. DIHAPUS, karena kita tidak pakai library ini
 import com.nafaskarya.muslimdaily.guest.GuestDashboard
 
 class MainActivity : ComponentActivity() {
+    // Anotasi @RequiresApi juga bisa dihapus karena sudah tidak relevan
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 1. Aktifkan mode Edge-to-Edge sebelum super.onCreate()
-        // Ini adalah praktik terbaik untuk menghindari flicker.
+        // AndroidThreeTen.init(this) // <-- 2. DIHAPUS, karena tidak diperlukan dengan Core Library Desugaring
+
         enableEdgeToEdge(
-            // 2. Gunakan .auto untuk status bar yang "pintar"
-            // Ikon akan otomatis terang/gelap menyesuaikan tema.
             statusBarStyle = SystemBarStyle.auto(
                 Color.TRANSPARENT,
                 Color.TRANSPARENT,
@@ -25,7 +28,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                GuestDashboard()
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    GuestDashboard()
+                }
             }
         }
     }

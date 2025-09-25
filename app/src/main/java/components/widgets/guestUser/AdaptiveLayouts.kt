@@ -1,5 +1,3 @@
-// File: com/nafaskarya/muslimdaily/components/widgets/guestUser/ScreenLayouts.kt
-
 package com.nafaskarya.muslimdaily.components.widgets.guestUser
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,17 +16,20 @@ import com.nafaskarya.muslimdaily.components.shared.SearchPage
 import com.nafaskarya.muslimdaily.components.widgets.ResponsiveAppNavigation
 import com.nafaskarya.muslimdaily.components.widgets.data.NavItem
 
+// Anotasi @RequiresApi sudah dihapus
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CompactScreenLayout(
+    modifier: Modifier = Modifier,
     windowSizeClass: WindowWidthSizeClass,
     pagerState: PagerState,
     items: List<NavItem>,
     selectedItemIndex: Int,
-    onItemSelected: (Int) -> Unit
+    onItemSelected: (Int) -> Unit,
+    onShowSnackbar: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
@@ -39,14 +40,13 @@ fun CompactScreenLayout(
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 when (pageIndex) {
-                    0 -> DashboardContent()
+                    0 -> DashboardContent(onShowSnackbar = onShowSnackbar)
                     1 -> SearchPage()
                     // ... tambahkan halaman lain di sini
                 }
             }
         }
 
-        // PERBAIKAN: Memanggil ResponsiveAppNavigation, bukan CustomBottomBar
         ResponsiveAppNavigation(
             windowSizeClass = windowSizeClass,
             items = items,
@@ -56,21 +56,23 @@ fun CompactScreenLayout(
     }
 }
 
+// Anotasi @RequiresApi sudah dihapus
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExpandedScreenLayout(
+    modifier: Modifier = Modifier,
     windowSizeClass: WindowWidthSizeClass,
     pagerState: PagerState,
     items: List<NavItem>,
     selectedItemIndex: Int,
-    onItemSelected: (Int) -> Unit
+    onItemSelected: (Int) -> Unit,
+    onShowSnackbar: (String) -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // PERBAIKAN: Menampilkan NavigationRail di samping
         ResponsiveAppNavigation(
             windowSizeClass = windowSizeClass,
             items = items,
@@ -78,14 +80,13 @@ fun ExpandedScreenLayout(
             onItemSelected = onItemSelected
         )
 
-        // Konten utama (Pager)
         Box(modifier = Modifier.weight(1f)) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 when (pageIndex) {
-                    0 -> DashboardContent()
+                    0 -> DashboardContent(onShowSnackbar = onShowSnackbar)
                     1 -> SearchPage()
                     // ... tambahkan halaman lain di sini
                 }

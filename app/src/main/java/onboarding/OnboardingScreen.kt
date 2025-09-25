@@ -1,121 +1,91 @@
 package com.nafaskarya.muslimdaily.onboarding
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import components.shared.loader.LoaderPage
-import com.nafaskarya.muslimdaily.R
-import kotlinx.coroutines.delay
+import com.nafaskarya.muslimdaily.onboarding.components.OnboardingBottomSection
+import com.nafaskarya.muslimdaily.onboarding.components.OnboardingPageContent
+import com.nafaskarya.muslimdaily.onboarding.data.pages
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OnboardingScreen(onStartClicked: () -> Unit) {
-    var isLoading by remember { mutableStateOf(false) }
+fun OnboardingScreen(onFinish: () -> Unit) {
+    val pagerState = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
+    // 1. Tambahkan state untuk melacak sentuhan
+    var isPressed by remember { mutableStateOf(false) }
 
-    if (isLoading) {
-        // --- PERBAIKAN DI SINI ---
-        // Panggil LoaderPage tanpa parameter 'text'
-        LoaderPage()
-        // -------------------------
-    } else {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFF2C2C2C))
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_mosque),
-                    contentDescription = "Onboarding Illustration",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            // 2. Tambahkan modifier untuk mendeteksi sentuhan
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        isPressed = true
+                        tryAwaitRelease()
+                        isPressed = false
+                    }
                 )
-                Spacer(modifier = Modifier.height(60.dp))
             }
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            key = { index -> pages[index].title },
+            userScrollEnabled = false
+        ) { pageIndex ->
+            OnboardingPageContent(page = pages[pageIndex])
+        }
 
-            Card(
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-            ) {
-                Column(
-                    modifier = Modifier.padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Selamat Datang di Muslim Daily! ✨",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Temukan jadwal sholat, Al-Qur'an, dan fitur Islami lainnya.",
-                        fontSize = 16.sp,
-                        color = Color.Gray,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
+        TextButton(
+            onClick = onFinish,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        ) {
+            Text(text = "Skip", color = Color.White, fontSize = 16.sp)
+        }
 
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                isLoading = true // Tampilkan loader
-                                delay(5000L)     // Tunggu selama 5 detik
-                                onStartClicked() // Lanjutkan pindah halaman
-                            }
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E1E1E)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                    ) {
-                        Text(
-                            text = "Mulai Sekarang",
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+        OnboardingBottomSection(
+            pagerState = pagerState,
+            onNextClicked = {
+                scope.launch {
+                    if (pagerState.currentPage < pages.size - 1) {
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    } else {
+                        onFinish()
                     }
                 }
-            }
-        }
+            },
+            isPressed = isPressed, // 3. Kirimkan state 'isPressed' ke komponen
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 48.dp)
+        )
     }
 }
 
-
 @Preview(showBackground = true, device = "id:pixel_5")
 @Composable
-fun OnboardingScreenPreview() {
-    MaterialTheme {
-        OnboardingScreen(onStartClicked = {})
-    }
+private fun OnboardingScreenPreview() {
+    // Perbaiki juga preview agar tidak error
+    OnboardingScreen(onFinish = {})
 }
