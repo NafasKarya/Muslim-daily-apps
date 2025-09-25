@@ -1,3 +1,5 @@
+// File: com/nafaskarya/muslimdaily/components/widgets/guestUser/AppContent.kt (Sudah Diperbaiki)
+
 package com.nafaskarya.muslimdaily.components.widgets.guestUser
 
 import androidx.compose.runtime.Composable
@@ -10,13 +12,19 @@ import com.nafaskarya.muslimdaily.ui.utils.Screen
 /**
  * Konten aplikasi (NavHost) yang digunakan bersama oleh semua layout.
  */
+// Anotasi @RequiresApi sudah dihapus
 @Composable
-fun AppContent(navController: NavHostController) {
+fun AppContent(
+    navController: NavHostController,
+    onShowSnackbar: (String) -> Unit
+) {
     NavHost(
         navController = navController,
         startDestination = Screen.Dashboard.route
     ) {
-        composable(Screen.Dashboard.route) { DashboardContent() }
+        composable(Screen.Dashboard.route) {
+            DashboardContent(onShowSnackbar = onShowSnackbar)
+        }
         composable(Screen.Search.route) { SearchPage() }
         // bisa tambahkan route lain: Qibla, Tasbih
     }

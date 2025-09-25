@@ -1,10 +1,6 @@
-// File: com/nafaskarya/muslimdaily/components/widgets/guestUser/DashboardContent.kt
-
 package com.nafaskarya.muslimdaily.components.widgets.guestUser
 
 import NewestCard
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,15 +24,15 @@ import com.nafaskarya.muslimdaily.layouts.theme.Dimens
 import ui.viewmodel.PrayerTimeUiState
 import ui.viewmodel.PrayerTimeViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
+// Anotasi @RequiresApi sudah dihapus
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
     modifier: Modifier = Modifier,
-    prayerTimeViewModel: PrayerTimeViewModel = viewModel()
+    prayerTimeViewModel: PrayerTimeViewModel = viewModel(),
+    onShowSnackbar: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
-    // Menggunakan Dimens untuk konsistensi dengan tinggi header
     val headerHeightPx = with(LocalDensity.current) { Dimens.DashboardHeaderHeight.toPx() }
     val showTopBar by remember {
         derivedStateOf {
@@ -45,6 +41,15 @@ fun DashboardContent(
     }
 
     val uiState by prayerTimeViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState) {
+        if (uiState is PrayerTimeUiState.Error) {
+            val errorMessage = (uiState as PrayerTimeUiState.Error).message
+            if (!errorMessage.contains("Izin lokasi", ignoreCase = true)) {
+                onShowSnackbar(errorMessage)
+            }
+        }
+    }
 
     val isRefreshing = when (val state = uiState) {
         is PrayerTimeUiState.Success -> state.isRefreshing
@@ -64,20 +69,25 @@ fun DashboardContent(
         ) {
             DashboardHeader()
             LastReadCard()
-            Spacer(modifier = Modifier.height(Dimens.PaddingLarge)) // Menggunakan Dimens
+            Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
             Text(
                 text = Strings.PrayerTimeTitle,
-                modifier = Modifier.padding(horizontal = Dimens.PaddingNormal) // Menggunakan Dimens
+                modifier = Modifier.padding(horizontal = Dimens.PaddingNormal)
             )
-            Spacer(modifier = Modifier.height(Dimens.PaddingMedium)) // Menggunakan Dimens
-            PrayerTimeCard(viewModel = prayerTimeViewModel)
-            Spacer(modifier = Modifier.height(Dimens.PaddingNormal)) // Menggunakan Dimens
+            Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
+
+            PrayerTimeCard(
+                viewModel = prayerTimeViewModel,
+                onShowSnackbar = onShowSnackbar
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.PaddingNormal))
             FindMosqueButton(onClick = { /* ... */ })
-            Spacer(modifier = Modifier.height(Dimens.PaddingLarge)) // Menggunakan Dimens
+            Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
             MenuGrid()
-            Spacer(modifier = Modifier.height(Dimens.PaddingLarge)) // Menggunakan Dimens
+            Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
             NgajiOnlineSection()
-            Spacer(modifier = Modifier.height(Dimens.PaddingLarge)) // Menggunakan Dimens
+            Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
             NewestCard()
         }
 
@@ -92,14 +102,17 @@ fun DashboardContent(
     }
 }
 
+
+// Anotasi @RequiresApi sudah dihapus
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun GuestDashboardPreview() {
-    // GuestDashboard()
+    DashboardContent(onShowSnackbar = { /* preview tidak melakukan apa-apa */ })
 }
 
+// Anotasi @RequiresApi sudah dihapus
 @Preview(showBackground = true, widthDp = 1200, heightDp = 800)
 @Composable
 fun GuestDashboardTabletPreview() {
-    // GuestDashboard()
+    DashboardContent(onShowSnackbar = { /* preview tidak melakukan apa-apa */ })
 }

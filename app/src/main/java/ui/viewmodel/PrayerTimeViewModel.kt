@@ -1,9 +1,7 @@
 package ui.viewmodel
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.nafaskarya.muslimdaily.ui.models.PrayerPeriod
@@ -19,7 +17,6 @@ import ui.repository.PrayerTimeRepository
 import java.text.SimpleDateFormat
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.O)
 class PrayerTimeViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = PrayerTimeRepository(application)
 
@@ -30,7 +27,7 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
         refreshDataIfStale()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    // Fungsi refreshDataIfStale() dan refreshData() tidak ada perubahan...
     fun refreshDataIfStale() {
         viewModelScope.launch {
             _uiState.value = PrayerTimeUiState.Loading
@@ -48,7 +45,6 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun refreshData() {
         viewModelScope.launch {
             val currentState = _uiState.value
@@ -71,7 +67,8 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
+    // --- PERUBAHAN UTAMA ADA DI FUNGSI INI ---
     private fun mapDataToSuccessState(
         prayerData: PrayerTimesData,
         isRefreshing: Boolean = false
@@ -83,7 +80,6 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
         val timeGreeting = getCurrentTimeGreeting()
         val timeOfDay = timeGreeting.timeOfDay
 
-        // --- Perhitungan yang diperbaiki akan digunakan di sini ---
         val upcomingPeriod = calculateUpcomingPrayer(prayerData)
         val formattedDate = getFormattedDate()
 
@@ -93,16 +89,16 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
             showStars = timeOfDay is TimeOfDay.Night || timeOfDay is TimeOfDay.LateNight,
             formattedDate = formattedDate,
             cardImage = timeOfDay.cardImage,
-            isRefreshing = isRefreshing
+            isRefreshing = isRefreshing,
+            greeting = timeGreeting.greetingText // <-- KIRIMKAN DATA SAPAAN DI SINI
         )
     }
 
-    // --- FUNGSI UTAMA YANG DIPERBAIKI ---
+    // Fungsi calculateUpcomingPrayer() dan getFormattedDate() tidak ada perubahan...
     private fun calculateUpcomingPrayer(prayerData: PrayerTimesData): PrayerPeriod {
         val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
         val now = Calendar.getInstance()
 
-        // 1. Definisikan urutan sholat yang benar dan lengkap
         val prayerOrder = listOf(
             PrayerPeriod.TAHAJUD,
             PrayerPeriod.FAJR,
@@ -117,12 +113,14 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
         val prayerCalendars = prayerData.times.mapNotNull { (period, timeStr) ->
             runCatching {
                 val parsedTime = timeFormatter.parse(timeStr) ?: return@runCatching null
+                val tempCal = Calendar.getInstance().apply { time = parsedTime }
                 val prayerCal = Calendar.getInstance().apply {
-                    time = parsedTime
+                    set(Calendar.HOUR_OF_DAY, tempCal.get(Calendar.HOUR_OF_DAY))
+                    set(Calendar.MINUTE, tempCal.get(Calendar.MINUTE))
                     set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
                 }
 
-                // 2. Jika waktu sholat sudah lewat hari ini, tambahkan 1 hari (anggap besok)
                 if (prayerCal.before(now)) {
                     prayerCal.add(Calendar.DAY_OF_YEAR, 1)
                 }
@@ -130,19 +128,15 @@ class PrayerTimeViewModel(application: Application) : AndroidViewModel(applicati
             }.getOrNull()
         }.toMap()
 
-        // 3. Urutkan waktu sholat berdasarkan urutan yang benar, lalu cari yang paling dekat di masa depan
         val upcomingPrayer = prayerOrder
             .mapNotNull { period -> prayerCalendars[period]?.let { period to it } }
             .minByOrNull { (_, cal) -> cal.timeInMillis }
 
-        // 4. Jika ada, kembalikan periodenya. Jika tidak, kembalikan yang pertama dalam urutan.
         return upcomingPrayer?.first ?: prayerOrder.first()
     }
-    // ------------------------------------
 
     private fun getFormattedDate(): String {
         val dateFormatter = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("id", "ID"))
         return dateFormatter.format(Calendar.getInstance().time)
     }
 }
-

@@ -23,5 +23,6 @@ enum class PrayerPeriod {
 data class PrayerTimesData(
     val cityName: String = "Tidak Diketahui",
     val times: Map<PrayerPeriod, String> = emptyMap(),
+    val hijriDate: String? = null,
     val lastUpdated: Long = 0L // Timestamp untuk Caching
 )

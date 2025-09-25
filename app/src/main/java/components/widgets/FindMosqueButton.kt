@@ -30,28 +30,32 @@ fun FindMosqueButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .border(1.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+            // Mengurangi radius sudut border agar konsisten
+            .border(1.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
             ) {
                 onClick()
             },
-        shape = RoundedCornerShape(16.dp),
+        // Mengurangi radius sudut Card
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 18.dp),
+                // 1. Padding vertikal dikurangi secara signifikan
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = AppIcons.Mosque.inactive),
                 contentDescription = "Mosque Icon",
                 tint = Color(0xFF4FB7B3),
-                modifier = Modifier.size(32.dp) // <-- TAMBAHKAN INI UNTUK PERBESAR IKON
+                // 2. Ukuran ikon diperkecil ke ukuran standar
+                modifier = Modifier.size(24.dp)
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -59,7 +63,8 @@ fun FindMosqueButton(
             Text(
                 text = "Find nearest mosque",
                 fontWeight = FontWeight.Medium,
-                fontSize = 16.sp
+                // 3. Ukuran font diperkecil (opsional, tapi disarankan)
+                fontSize = 14.sp
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -68,7 +73,8 @@ fun FindMosqueButton(
                 painter = painterResource(id = AppIcons.ChevronRight),
                 contentDescription = "Action Arrow",
                 tint = Color.Gray,
-                modifier = Modifier.size(28.dp) // <-- TAMBAHKAN INI JUGA (UKURAN BISA BEDA)
+                // 4. Ukuran ikon chevron juga diperkecil
+                modifier = Modifier.size(24.dp)
             )
         }
     }

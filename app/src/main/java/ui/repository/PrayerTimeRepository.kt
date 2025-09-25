@@ -28,6 +28,26 @@ private val Context.prayerTimesDataStore: DataStore<PrayerTimesData> by dataStor
     serializer = PrayerTimesSerializer
 )
 
+private suspend fun fetchFromFakeApi(cityName: String): PrayerTimesData {
+    delay(1500)
+    return PrayerTimesData(
+        cityName = cityName,
+        // Contoh tanggal Hijriah, sesuaikan dengan data asli nanti
+        hijriDate = "25 Dzulqaidah 1446 H", // <-- TAMBAHKAN BARIS INI
+        times = mapOf(
+            PrayerPeriod.TAHAJUD to "02:45",
+            PrayerPeriod.FAJR to "04:31",
+            PrayerPeriod.SYURUQ to "05:45",
+            PrayerPeriod.DHUHA to "06:15",
+            PrayerPeriod.DHUHR to "11:51",
+            PrayerPeriod.ASR to "15:13",
+            PrayerPeriod.MAGHRIB to "17:46",
+            PrayerPeriod.ISHA to "18:58"
+        ),
+        lastUpdated = System.currentTimeMillis()
+    )
+}
+
 class PrayerTimeRepository(private val context: Context) {
 
     suspend fun getPrayerTimes(): PrayerTimesData = context.prayerTimesDataStore.data.first()
