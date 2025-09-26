@@ -10,12 +10,16 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nafaskarya.muslimdaily.onboarding.components.OnboardingBottomSection
@@ -28,24 +32,14 @@ import kotlinx.coroutines.launch
 fun OnboardingScreen(onFinish: () -> Unit) {
     val pagerState = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
-    // 1. Tambahkan state untuk melacak sentuhan
     var isPressed by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            // 2. Tambahkan modifier untuk mendeteksi sentuhan
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        isPressed = true
-                        tryAwaitRelease()
-                        isPressed = false
-                    }
-                )
-            }
     ) {
+        // Lapisan 1: Konten Pager sebagai latar belakang utama
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
@@ -55,6 +49,24 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             OnboardingPageContent(page = pages[pageIndex])
         }
 
+        // Lapisan 2: Lapisan transparan khusus untuk mendeteksi gestur tahan/lepas.
+        // Lapisan ini ada di atas Pager, tapi di bawah tombol.
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = {
+                            isPressed = true
+                            tryAwaitRelease()
+                            isPressed = false
+                        }
+                    )
+                }
+        )
+
+        // Lapisan 3: Tombol dan kontrol UI berada di lapisan paling atas,
+        // sehingga sentuhan akan diterima oleh mereka terlebih dahulu.
         TextButton(
             onClick = onFinish,
             modifier = Modifier
@@ -75,17 +87,10 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                     }
                 }
             },
-            isPressed = isPressed, // 3. Kirimkan state 'isPressed' ke komponen
+            isPressed = isPressed,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 48.dp)
         )
     }
-}
-
-@Preview(showBackground = true, device = "id:pixel_5")
-@Composable
-private fun OnboardingScreenPreview() {
-    // Perbaiki juga preview agar tidak error
-    OnboardingScreen(onFinish = {})
 }

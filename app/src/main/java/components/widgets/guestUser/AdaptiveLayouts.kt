@@ -16,7 +16,6 @@ import com.nafaskarya.muslimdaily.components.shared.SearchPage
 import com.nafaskarya.muslimdaily.components.widgets.ResponsiveAppNavigation
 import com.nafaskarya.muslimdaily.components.widgets.data.NavItem
 
-// Anotasi @RequiresApi sudah dihapus
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CompactScreenLayout(
@@ -26,6 +25,9 @@ fun CompactScreenLayout(
     items: List<NavItem>,
     selectedItemIndex: Int,
     onItemSelected: (Int) -> Unit,
+    isLoading: Boolean,
+    // --- PERUBAHAN 1: Terima parameter onRefresh ---
+    onRefresh: () -> Unit,
     onShowSnackbar: (String) -> Unit
 ) {
     Column(
@@ -40,7 +42,12 @@ fun CompactScreenLayout(
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 when (pageIndex) {
-                    0 -> DashboardContent(onShowSnackbar = onShowSnackbar)
+                    0 -> DashboardContent(
+                        isLoading = isLoading,
+                        // --- PERUBAHAN 2: Kirimkan onRefresh ke DashboardContent ---
+                        onRefresh = onRefresh,
+                        onShowSnackbar = onShowSnackbar
+                    )
                     1 -> SearchPage()
                     // ... tambahkan halaman lain di sini
                 }
@@ -56,7 +63,6 @@ fun CompactScreenLayout(
     }
 }
 
-// Anotasi @RequiresApi sudah dihapus
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExpandedScreenLayout(
@@ -66,6 +72,9 @@ fun ExpandedScreenLayout(
     items: List<NavItem>,
     selectedItemIndex: Int,
     onItemSelected: (Int) -> Unit,
+    isLoading: Boolean,
+    // --- PERUBAHAN 3: Terima parameter onRefresh ---
+    onRefresh: () -> Unit,
     onShowSnackbar: (String) -> Unit
 ) {
     Row(
@@ -86,7 +95,12 @@ fun ExpandedScreenLayout(
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 when (pageIndex) {
-                    0 -> DashboardContent(onShowSnackbar = onShowSnackbar)
+                    0 -> DashboardContent(
+                        isLoading = isLoading,
+                        // --- PERUBAHAN 4: Kirimkan onRefresh ke DashboardContent ---
+                        onRefresh = onRefresh,
+                        onShowSnackbar = onShowSnackbar
+                    )
                     1 -> SearchPage()
                     // ... tambahkan halaman lain di sini
                 }

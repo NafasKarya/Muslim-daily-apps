@@ -12,20 +12,36 @@ import androidx.compose.ui.platform.LocalContext
 import com.nafaskarya.muslimdaily.components.widgets.data.guestDashboardNavItems
 import com.nafaskarya.muslimdaily.components.widgets.guestUser.CompactScreenLayout
 import com.nafaskarya.muslimdaily.components.widgets.guestUser.ExpandedScreenLayout
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// Anotasi @RequiresApi sudah dihapus
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun GuestDashboard() {
-    // Logika Snackbar dihilangkan karena tidak ada Scaffold
     val coroutineScope = rememberCoroutineScope()
-
     val pagerState = rememberPagerState { guestDashboardNavItems.size }
     val selectedItemIndex by remember { derivedStateOf { pagerState.currentPage } }
-
     val activity = LocalContext.current as Activity
     val windowSizeClass = calculateWindowSizeClass(activity).widthSizeClass
+
+    var isLoading by remember { mutableStateOf(true) }
+
+    // --- PERUBAHAN 1: Buat fungsi refresh yang bisa dipanggil ulang ---
+    val refreshDashboard: () -> Unit = {
+        coroutineScope.launch {
+            // Tampilkan shimmer
+            isLoading = true
+            // Simulasi proses ambil data (misal: 1.5 detik)
+            delay(1500)
+            // Sembunyikan shimmer
+            isLoading = false
+        }
+    }
+
+    // Panggil refresh saat pertama kali layar dimuat
+    LaunchedEffect(Unit) {
+        refreshDashboard()
+    }
 
     val onNavItemClick: (Int) -> Unit = { index ->
         coroutineScope.launch {
@@ -33,30 +49,32 @@ fun GuestDashboard() {
         }
     }
 
-    // --- PEMILIHAN LAYOUT BERDASARKAN LEBAR LAYAR ---
-    // Langsung panggil 'when' block tanpa Scaffold
     when (windowSizeClass) {
         WindowWidthSizeClass.Compact -> {
             CompactScreenLayout(
-                modifier = Modifier, // innerPadding tidak ada lagi
+                modifier = Modifier,
                 windowSizeClass = windowSizeClass,
                 pagerState = pagerState,
                 items = guestDashboardNavItems,
                 selectedItemIndex = selectedItemIndex,
                 onItemSelected = onNavItemClick,
-                // onShowSnackbar harus tetap ada, tapi tidak akan melakukan apa-apa
+                isLoading = isLoading,
+                // --- PERUBAHAN 2: Kirim fungsi refresh ke bawah ---
+                onRefresh = refreshDashboard,
                 onShowSnackbar = { /* tidak ada aksi */ }
             )
         }
         else -> { // Medium & Expanded
             ExpandedScreenLayout(
-                modifier = Modifier, // innerPadding tidak ada lagi
+                modifier = Modifier,
                 windowSizeClass = windowSizeClass,
                 pagerState = pagerState,
                 items = guestDashboardNavItems,
                 selectedItemIndex = selectedItemIndex,
                 onItemSelected = onNavItemClick,
-                // onShowSnackbar harus tetap ada, tapi tidak akan melakukan apa-apa
+                isLoading = isLoading,
+                // --- PERUBAHAN 2: Kirim fungsi refresh ke bawah ---
+                onRefresh = refreshDashboard,
                 onShowSnackbar = { /* tidak ada aksi */ }
             )
         }

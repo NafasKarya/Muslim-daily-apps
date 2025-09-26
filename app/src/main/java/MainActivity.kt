@@ -10,13 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-// import com.jakewharton.threetenabp.AndroidThreeTen // <-- 1. DIHAPUS, karena kita tidak pakai library ini
 import com.nafaskarya.muslimdaily.guest.GuestDashboard
 
 class MainActivity : ComponentActivity() {
-    // Anotasi @RequiresApi juga bisa dihapus karena sudah tidak relevan
     override fun onCreate(savedInstanceState: Bundle?) {
-        // AndroidThreeTen.init(this) // <-- 2. DIHAPUS, karena tidak diperlukan dengan Core Library Desugaring
+        // Pemanggilan super.onCreate() harus selalu menjadi baris pertama.
+        super.onCreate(savedInstanceState)
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(
@@ -24,9 +23,9 @@ class MainActivity : ComponentActivity() {
                 Color.TRANSPARENT,
             )
         )
-        super.onCreate(savedInstanceState)
 
         setContent {
+            // Menggunakan MaterialTheme sesuai kode yang Anda berikan.
             MaterialTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
