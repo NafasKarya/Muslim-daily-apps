@@ -1,4 +1,7 @@
-// HAPUS SEMUA ISI build.gradle.kts LAMA ANDA, LALU GANTI DENGAN INI
+// --- PERBAIKAN: Tambahkan import untuk kelas Java di sini ---
+import java.util.Properties
+import java.io.FileInputStream
+// -----------------------------------------------------------
 
 plugins {
     alias(libs.plugins.android.application)
@@ -10,6 +13,25 @@ plugins {
 android {
     namespace = "com.nafaskarya.muslimdaily"
     compileSdk = 35
+
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    // Sekarang `Properties` akan dikenali
+    val keystoreProperties = Properties()
+    if (keystorePropertiesFile.exists()) {
+        // Dan `FileInputStream` juga akan dikenali
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "com.nafaskarya.muslimdaily"
@@ -23,11 +45,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -93,6 +116,8 @@ dependencies {
 
     // Mengaktifkan dukungan API modern di Android versi lama
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+    implementation("com.valentinilk.shimmer:compose-shimmer:1.2.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

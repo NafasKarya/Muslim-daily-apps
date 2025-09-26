@@ -1,6 +1,8 @@
 package com.nafaskarya.muslimdaily.components.widgets.guestUser
 
 import NewestCard
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,22 +26,26 @@ import com.nafaskarya.muslimdaily.layouts.theme.Dimens
 import ui.viewmodel.PrayerTimeUiState
 import ui.viewmodel.PrayerTimeViewModel
 
-// Anotasi @RequiresApi sudah dihapus
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
     modifier: Modifier = Modifier,
+    isLoading: Boolean,
+    onRefresh: () -> Unit,
     prayerTimeViewModel: PrayerTimeViewModel = viewModel(),
     onShowSnackbar: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val headerHeightPx = with(LocalDensity.current) { Dimens.DashboardHeaderHeight.toPx() }
+
     val showTopBar by remember {
         derivedStateOf {
             scrollState.value > headerHeightPx / 2
         }
     }
 
+    // --- FIX: Menghapus spasi yang salah ---
     val uiState by prayerTimeViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState) {
@@ -51,15 +57,18 @@ fun DashboardContent(
         }
     }
 
-    val isRefreshing = when (val state = uiState) {
+    val isRefreshingPrayerTime = when (val state = uiState) {
         is PrayerTimeUiState.Success -> state.isRefreshing
         is PrayerTimeUiState.Loading -> true
         else -> false
     }
 
     RefreshableContent(
-        isRefreshing = isRefreshing,
-        onRefresh = { prayerTimeViewModel.refreshData() },
+        isRefreshing = isRefreshingPrayerTime,
+        onRefresh = {
+            prayerTimeViewModel.refreshData()
+            onRefresh()
+        },
         modifier = modifier.fillMaxSize()
     ) {
         Column(
@@ -67,8 +76,10 @@ fun DashboardContent(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
-            DashboardHeader()
-            LastReadCard()
+            DashboardHeader(isLoading = isLoading)
+
+            LastReadCard(isLoading = isLoading)
+
             Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
             Text(
                 text = Strings.PrayerTimeTitle,
@@ -103,16 +114,35 @@ fun DashboardContent(
 }
 
 
-// Anotasi @RequiresApi sudah dihapus
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "Dashboard Loaded")
 @Composable
 fun GuestDashboardPreview() {
-    DashboardContent(onShowSnackbar = { /* preview tidak melakukan apa-apa */ })
+    DashboardContent(
+        isLoading = false,
+        onRefresh = {},
+        onShowSnackbar = {}
+    )
 }
 
-// Anotasi @RequiresApi sudah dihapus
-@Preview(showBackground = true, widthDp = 1200, heightDp = 800)
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "Dashboard Loading")
+@Composable
+fun GuestDashboardLoadingPreview() {
+    DashboardContent(
+        isLoading = true,
+        onRefresh = {},
+        onShowSnackbar = {}
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, widthDp = 1200, heightDp = 800, name = "Tablet Dashboard")
 @Composable
 fun GuestDashboardTabletPreview() {
-    DashboardContent(onShowSnackbar = { /* preview tidak melakukan apa-apa */ })
+    DashboardContent(
+        isLoading = false,
+        onRefresh = {},
+        onShowSnackbar = {}
+    )
 }
