@@ -23,7 +23,7 @@ import com.nafaskarya.muslimdaily.components.widgets.dashboard.DashboardHeader
 import com.nafaskarya.muslimdaily.components.widgets.dashboard.TopAppBarWhenScrolled
 import com.nafaskarya.muslimdaily.layouts.text.Strings
 import com.nafaskarya.muslimdaily.layouts.theme.Dimens
-import ui.viewmodel.PrayerTimeUiState
+import ui.utils.state.PrayerTimeUiState
 import ui.viewmodel.PrayerTimeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -45,7 +45,6 @@ fun DashboardContent(
         }
     }
 
-    // --- FIX: Menghapus spasi yang salah ---
     val uiState by prayerTimeViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState) {
@@ -87,10 +86,13 @@ fun DashboardContent(
             )
             Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
+            // --- PERBAIKAN DI SINI ---
+            // Nama parameter diubah dari 'viewModel' menjadi 'prayerTimeViewModel'
             PrayerTimeCard(
-                viewModel = prayerTimeViewModel,
+                prayerTimeViewModel = prayerTimeViewModel,
                 onShowSnackbar = onShowSnackbar
             )
+            // -------------------------
 
             Spacer(modifier = Modifier.height(Dimens.PaddingNormal))
             FindMosqueButton(onClick = { /* ... */ })

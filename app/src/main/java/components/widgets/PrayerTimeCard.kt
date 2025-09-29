@@ -24,15 +24,27 @@ import com.nafaskarya.muslimdaily.R
 import com.nafaskarya.muslimdaily.components.shared.shimmer.ShimmerPrayerTimeCard
 import com.nafaskarya.muslimdaily.components.widgets.prayerTime.NewPrayerTimeCardUI
 import com.nafaskarya.muslimdaily.components.widgets.prayerTime.PrayerTimeHeader
-import ui.viewmodel.PrayerTimeUiState
+import com.nafaskarya.muslimdaily.ui.viewmodels.HijriViewModel
+import com.nafaskarya.muslimdaily.ui.viewmodels.HijriViewModelFactory
+import ui.repository.hijri.HijriRepository
+import ui.utils.network.RetrofitClient
+import ui.utils.state.PrayerTimeUiState
 import ui.viewmodel.PrayerTimeViewModel
 
 @Composable
 fun PrayerTimeCard(
-    viewModel: PrayerTimeViewModel = viewModel(),
+    prayerTimeViewModel: PrayerTimeViewModel = viewModel(),
+    // --- 1. Inisialisasi HijriViewModel menggunakan factory ---
+    hijriViewModel: HijriViewModel = viewModel(
+        factory = HijriViewModelFactory(
+            HijriRepository(RetrofitClient.instance)
+        )
+    ),
     onShowSnackbar: (message: String) -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val prayerTimeUiState by prayerTimeViewModel.uiState.collectAsStateWithLifecycle()
+    // --- 2. Kumpulkan state dari HijriViewModel ---
+    val hijriUiState by hijriViewModel.hijriDateState.collectAsStateWithLifecycle()
     var permissionClickCount by rememberSaveable { mutableStateOf(0) }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
@@ -41,22 +53,24 @@ fun PrayerTimeCard(
         if (permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
         ) {
-            viewModel.refreshData()
+            prayerTimeViewModel.refreshData()
             permissionClickCount = 0
         }
     }
 
-    when (val state = uiState) {
+    when (val state = prayerTimeUiState) {
         is PrayerTimeUiState.Loading -> {
             ShimmerPrayerTimeCard()
         }
         is PrayerTimeUiState.Success -> {
-            // --- PERUBAHAN UTAMA DI SINI ---
-            // Tambahkan kondisi untuk memeriksa state.isRefreshing
             if (state.isRefreshing) {
                 ShimmerPrayerTimeCard()
             } else {
-                NewPrayerTimeCardUI(state = state)
+                // --- 3. Teruskan hijriUiState ke UI ---
+                NewPrayerTimeCardUI(
+                    state = state,
+                    hijriState = hijriUiState
+                )
             }
         }
         is PrayerTimeUiState.Error -> {

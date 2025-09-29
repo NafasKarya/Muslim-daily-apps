@@ -1,4 +1,4 @@
-package ui.viewmodel
+package ui.utils.state
 
 import androidx.annotation.DrawableRes
 import com.nafaskarya.muslimdaily.ui.models.PrayerPeriod

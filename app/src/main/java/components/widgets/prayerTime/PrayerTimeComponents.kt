@@ -19,13 +19,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nafaskarya.muslimdaily.R
 import com.nafaskarya.muslimdaily.ui.models.PrayerPeriod
-import ui.viewmodel.PrayerTimeUiState
+import ui.data.hijri.HijriDate
+import ui.utils.state.UiState
+
+import ui.utils.state.PrayerTimeUiState
 import java.util.Locale
 
 @Composable
-internal fun NewPrayerTimeCardUI(state: PrayerTimeUiState.Success) {
+internal fun NewPrayerTimeCardUI(
+    state: PrayerTimeUiState.Success,
+    // --- 1. Terima hijriState sebagai parameter ---
+    hijriState: UiState<HijriDate>
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,7 +41,8 @@ internal fun NewPrayerTimeCardUI(state: PrayerTimeUiState.Success) {
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column {
-            TopPrayerSection(state)
+            // --- 2. Teruskan hijriState ke TopPrayerSection ---
+            TopPrayerSection(state, hijriState)
             BottomPrayerSection(
                 times = state.prayerData.times,
                 upcomingPeriod = state.upcomingPrayerPeriod
@@ -45,16 +52,14 @@ internal fun NewPrayerTimeCardUI(state: PrayerTimeUiState.Success) {
 }
 
 @Composable
-private fun TopPrayerSection(state: PrayerTimeUiState.Success) {
+private fun TopPrayerSection(
+    state: PrayerTimeUiState.Success,
+    // --- 3. TopPrayerSection juga menerima hijriState ---
+    hijriState: UiState<HijriDate>
+) {
     val upcomingPrayerName = state.upcomingPrayerPeriod.name
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
     val upcomingPrayerTime = state.prayerData.times[state.upcomingPrayerPeriod] ?: "--:--"
-
-    val dateText = if (state.greeting.contains("Selamat Istirahat")) {
-        state.formattedDate
-    } else {
-        "${state.prayerData.hijriDate ?: "Dhu'l-Qi'dah 24"} • ${state.formattedDate}"
-    }
 
     Box(
         modifier = Modifier
@@ -81,21 +86,28 @@ private fun TopPrayerSection(state: PrayerTimeUiState.Success) {
                 .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            if (!state.greeting.contains("Selamat Istirahat")) {
-                Text(
-                    text = state.greeting,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
 
-            Text(
-                text = state.prayerData.hijriDate ?: "Dhu'l-Qi'dah 24",
+            // --- 4. Tampilkan UI berdasarkan hijriState ---
+            val textStyle = MaterialTheme.typography.titleMedium.copy(
                 color = Color.White,
-                fontSize = if (state.greeting.contains("Selamat Istirahat")) 18.sp else 16.sp,
                 fontWeight = FontWeight.SemiBold
             )
+            when (hijriState) {
+                is UiState.Loading -> {
+                    Text(text = "Memuat tanggal...", style = textStyle)
+                }
+                is UiState.Success -> {
+                    val date = hijriState.data
+                    Text(
+                        text = "${date.day} ${date.monthName} ${date.year} H",
+                        style = textStyle
+                    )
+                }
+                is UiState.Error -> {
+                    Text(text = "Tanggal Hijriah tidak tersedia", style = textStyle)
+                }
+            }
+
             Text(
                 text = state.formattedDate,
                 color = Color.White.copy(alpha = 0.8f),
@@ -155,7 +167,6 @@ private fun BottomPrayerSection(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            // 1. Kurangi padding atas dan bawah secara signifikan
             .padding(top = 12.dp, bottom = 4.dp),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
@@ -187,7 +198,6 @@ private fun PrayerTimeRowItem(name: String, time: String, isUpcoming: Boolean) {
             fontSize = 13.sp,
             fontWeight = if (isUpcoming) FontWeight.Bold else FontWeight.Normal
         )
-        // 2. Hilangkan space antar teks
         Text(
             text = time,
             color = textColor,
@@ -195,7 +205,6 @@ private fun PrayerTimeRowItem(name: String, time: String, isUpcoming: Boolean) {
             fontWeight = FontWeight.SemiBold
         )
 
-        // 3. Perkecil ukuran Box untuk indikator
         val indicatorHeight = 12.dp
         Box(modifier = Modifier.height(indicatorHeight)) {
             if (isUpcoming) {
@@ -204,9 +213,9 @@ private fun PrayerTimeRowItem(name: String, time: String, isUpcoming: Boolean) {
                     contentDescription = "Upcoming prayer indicator",
                     tint = activeColor,
                     modifier = Modifier
-                        .size(20.dp) // Ikon juga diperkecil
+                        .size(20.dp)
                         .align(Alignment.Center)
-                        .offset(y = (-8).dp) // Sesuaikan offset
+                        .offset(y = (-8).dp)
                 )
             }
         }
