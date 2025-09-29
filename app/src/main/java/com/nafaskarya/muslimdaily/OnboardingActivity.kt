@@ -1,4 +1,4 @@
-package com.nafaskarya.muslimdaily.onboarding
+package com.nafaskarya.muslimdaily
 
 import android.content.Intent
 import android.graphics.Color
@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.nafaskarya.muslimdaily.MainActivity
+import com.nafaskarya.muslimdaily.onboarding.OnboardingScreen
 import com.nafaskarya.muslimdaily.ui.screens.LoaderScreen // Pastikan import ini benar
 import kotlinx.coroutines.delay
 

@@ -1,4 +1,4 @@
-package components.shared.loader
+package com.nafaskarya.muslimdaily.components.shared.loader
 
 /**
  * Berisi daftar teks yang akan ditampilkan secara acak pada halaman pemuatan.

@@ -1,4 +1,4 @@
-package components.shared.loader
+package com.nafaskarya.muslimdaily.components.shared.loader
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing

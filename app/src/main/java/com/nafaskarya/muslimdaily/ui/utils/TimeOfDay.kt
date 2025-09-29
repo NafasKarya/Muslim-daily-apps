@@ -16,16 +16,16 @@ sealed class TimeOfDay(
     @DrawableRes val cardImage: Int
 ) {
     // Sunnah Prayers
-    object Tahajud : TimeOfDay("Tahajud, Yuk,", Color(0xFF637AB9), Color.White, R.drawable.img_tahajud)
-    object Syuruq : TimeOfDay("Syuruq, Yuk,", Color(0xFFFFD580), Color(0xFF3A3A3A), R.drawable.img_syuruq)
-    object Dhuha : TimeOfDay("Dhuha, Yuk,", Color(0xFFFFF2CC), Color(0xFF3A3A3A), R.drawable.img_dhuha)
+    data object Tahajud : TimeOfDay("Tahajud, Yuk,", Color(0xFF637AB9), Color.White, R.drawable.img_tahajud)
+    data object Syuruq : TimeOfDay("Syuruq, Yuk,", Color(0xFFFFD580), Color(0xFF3A3A3A), R.drawable.img_syuruq)
+    data object Dhuha : TimeOfDay("Dhuha, Yuk,", Color(0xFFFFF2CC), Color(0xFF3A3A3A), R.drawable.img_dhuha)
 
     // Obligatory Prayers
-    object LateNight : TimeOfDay("Selamat Istirahat,", Color(0xFF637AB9), Color.White, R.drawable.img_fajr)
-    object Morning : TimeOfDay("Assalamualaikum,", Color(0xFF234C6A), Color.White, R.drawable.img_mosque)
-    object Afternoon : TimeOfDay("Assalamualaikum,", Color(0xFFF8F7BA), Color(0xFF3A3A3A), R.drawable.img_tahajud)
-    object Evening : TimeOfDay("Assalamualaikum,", Color(0xFFFFC29B), Color(0xFF3A3A3A), R.drawable.img_tahajud)
-    object Night : TimeOfDay("Selamat Istirahat,", Color(0xFF234C6A), Color.White, R.drawable.img_fajr)
+    data object LateNight : TimeOfDay("Selamat Istirahat,", Color(0xFF637AB9), Color.White, R.drawable.img_fajr)
+    data object Morning : TimeOfDay("Assalamualaikum,", Color(0xFF234C6A), Color.White, R.drawable.img_mosque)
+    data object Afternoon : TimeOfDay("Assalamualaikum,", Color(0xFFF8F7BA), Color(0xFF3A3A3A), R.drawable.img_tahajud)
+    data object Evening : TimeOfDay("Assalamualaikum,", Color(0xFFFFC29B), Color(0xFF3A3A3A), R.drawable.img_tahajud)
+    data object Night : TimeOfDay("Selamat Istirahat,", Color(0xFF234C6A), Color.White, R.drawable.img_fajr)
 }
 
 // Data holder for dynamic greeting
@@ -73,3 +73,4 @@ fun getCurrentTimeGreeting(): TimeGreeting {
 
     return TimeGreeting(baseTimeOfDay, baseTimeOfDay.greetingText)
 }
+

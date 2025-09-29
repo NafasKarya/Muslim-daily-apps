@@ -15,10 +15,16 @@
         android:roundIcon="@mipmap/ic_launcher_muslim_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MuslimDaily"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
+        <!--
+        PERBAIKAN: Menggunakan path package lengkap untuk setiap Activity.
+        Ganti path ini jika struktur folder Anda berbeda.
+        Contoh: com.nafaskarya.muslimdaily.ui.splash.SplashActivity
+        -->
         <activity
-            android:name=".SplashActivity"
+            android:name="com.nafaskarya.muslimdaily.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.MuslimDaily.Splash">
             <intent-filter>
@@ -28,13 +34,14 @@
         </activity>
 
         <activity
-            android:name=".onboarding.OnboardingActivity"
+            android:name="com.nafaskarya.muslimdaily.OnboardingActivity"
             android:exported="false" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.nafaskarya.muslimdaily.MainActivity"
             android:exported="false" />
 
     </application>
 
 </manifest>
+
