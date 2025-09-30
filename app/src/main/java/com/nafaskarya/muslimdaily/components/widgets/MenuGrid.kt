@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nafaskarya.muslimdaily.layouts.theme.AppImages
+import timber.log.Timber // Opsional, untuk logging di preview
 
 // Data class untuk setiap item menu
 data class MenuItem(
@@ -28,7 +29,12 @@ data class MenuItem(
 
 // Komponen utama yang menampilkan seluruh grid menu
 @Composable
-fun MenuGrid() {
+fun MenuGrid(
+    // 1. TAMBAHKAN PARAMETER INI:
+    // Parameter ini berfungsi sebagai "callback" atau pemicu
+    // yang akan dijalankan ketika salah satu item menu di-klik.
+    onMenuItemClick: (MenuItem) -> Unit
+) {
     val menuItems = listOf(
         MenuItem("Quran", AppImages.AlQuran),
         MenuItem("Adzan", AppImages.Reminder),
@@ -56,7 +62,10 @@ fun MenuGrid() {
             menuItems.forEach { item ->
                 MenuItemCard(
                     menuItem = item,
-                    onClick = { /* TODO: Tambahkan aksi navigasi di sini */ },
+                    // 2. UBAH BAGIAN INI:
+                    // Saat kartu di-klik, panggil callback `onMenuItemClick`
+                    // dan kirimkan data item yang di-klik (`item`).
+                    onClick = { onMenuItemClick(item) },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -64,7 +73,7 @@ fun MenuGrid() {
     }
 }
 
-// Komponen untuk satu kartu item menu
+// Komponen untuk satu kartu item menu (Tidak ada perubahan di sini)
 @Composable
 fun MenuItemCard(menuItem: MenuItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(
@@ -74,9 +83,7 @@ fun MenuItemCard(menuItem: MenuItem, onClick: () -> Unit, modifier: Modifier = M
         Card(
             modifier = Modifier.size(64.dp),
             shape = RoundedCornerShape(16.dp),
-            // Elevation untuk memberikan efek bayangan (shadow)
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            // Warna latar belakang kartu adalah putih
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Box(
@@ -87,7 +94,6 @@ fun MenuItemCard(menuItem: MenuItem, onClick: () -> Unit, modifier: Modifier = M
                     painter = painterResource(id = menuItem.iconRes),
                     contentDescription = menuItem.title,
                     modifier = Modifier.size(28.dp)
-                    // Tidak ada colorFilter agar warna asli ikon tampil
                 )
             }
         }
@@ -106,5 +112,9 @@ fun MenuItemCard(menuItem: MenuItem, onClick: () -> Unit, modifier: Modifier = M
 @Preview(showBackground = true)
 @Composable
 private fun MenuGridPreview() {
-    MenuGrid()
+    // 3. SESUAIKAN PREVIEW:
+    // Kita berikan aksi sederhana untuk preview, misalnya mencetak ke log.
+    MenuGrid(onMenuItemClick = { menuItem ->
+        Timber.d("Item clicked: ${menuItem.title}")
+    })
 }

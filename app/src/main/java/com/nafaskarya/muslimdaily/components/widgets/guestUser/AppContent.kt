@@ -12,14 +12,11 @@ import com.nafaskarya.muslimdaily.ui.utils.Screen
 /**
  * Konten aplikasi (NavHost) yang digunakan bersama oleh semua layout.
  */
-// --- PERUBAHAN 1: Tambahkan anotasi @RequiresApi ---
-// Karena composable ini memanggil DashboardContent yang butuh API 26.
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppContent(
     navController: NavHostController,
     isLoading: Boolean,
-    // --- PERUBAHAN 2: Tambahkan parameter onRefresh ---
     onRefresh: () -> Unit,
     onShowSnackbar: (String) -> Unit
 ) {
@@ -30,12 +27,33 @@ fun AppContent(
         composable(Screen.Dashboard.route) {
             DashboardContent(
                 isLoading = isLoading,
-                // --- PERUBAHAN 3: Kirimkan onRefresh ke DashboardContent ---
                 onRefresh = onRefresh,
-                onShowSnackbar = onShowSnackbar
+                onShowSnackbar = onShowSnackbar,
+                // --- PERBAIKAN: Tambahkan parameter onMenuItemClick ---
+                onMenuItemClick = { menuItem ->
+                    // Di sinilah logika navigasi utama Anda
+                    when (menuItem.title) {
+                        "Quran" -> {
+                            navController.navigate("quran_route") // Ganti dengan route Quran Anda
+                        }
+                        "Adzan" -> {
+                            // navController.navigate("adzan_route")
+                        }
+                        "Qibla" -> {
+                            // navController.navigate("qibla_route")
+                        }
+                        // Tambahkan case lain jika diperlukan
+                    }
+                }
             )
         }
         composable(Screen.Search.route) { SearchPage() }
-        // bisa tambahkan route lain: Qibla, Tasbih
+
+        // --- TAMBAHKAN ROUTE TUJUAN ANDA DI SINI ---
+        composable("quran_route") {
+            // Composable untuk halaman Quran Anda
+            // Contoh: QuranScreen(navController = navController)
+        }
+        // bisa tambahkan route lain: qibla_route, dll.
     }
 }

@@ -1,7 +1,7 @@
 package com.nafaskarya.muslimdaily.ui.viewmodel
 
 import android.os.Build
-import android.util.Log
+// import android.util.Log // <-- Hapus atau komentari import ini
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import timber.log.Timber // --- 1. TAMBAHKAN IMPORT TIMBER ---
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -55,10 +56,15 @@ class PrayerTimeViewModel(private val repository: PrayerTimeRepository) : ViewMo
             repository.getPrayerSchedule(latitude, longitude).collect { result ->
                 when (result) {
                     is UiState.Success -> {
+                        // --- 2. TAMBAHKAN LOG TIMBER DI SINI ---
+                        // Ini akan mencetak seluruh isi data yang berhasil di-parse dari JSON.
+                        Timber.d("Data mentah diterima dari repository: ${result.data}")
+                        // ------------------------------------------
                         _uiState.value = mapDataToSuccessState(result.data)
                     }
                     is UiState.Error -> {
-                        Log.e("PrayerTimeViewModel", "Error fetching prayer data: ${result.message}")
+                        // --- 3. GANTI LOG DENGAN TIMBER ---
+                        Timber.e("Error fetching prayer data: ${result.message}")
                         _uiState.value = PrayerTimeUiState.Error(result.message)
                     }
                     is UiState.Loading -> {
@@ -76,6 +82,10 @@ class PrayerTimeViewModel(private val repository: PrayerTimeRepository) : ViewMo
         prayerData: PrayerSchedule,
         isRefreshing: Boolean = false
     ): PrayerTimeUiState.Success {
+        // --- TAMBAHKAN LOG TIMBER DI SINI JUGA UNTUK MEMASTIKAN ---
+        Timber.d("Memetakan data ke Success State. nextPrayerTime: ${prayerData.nextPrayerTime}")
+        // -----------------------------------------------------------
+
         val timeGreeting = getCurrentTimeGreeting()
         val upcomingPeriod = mapPrayerNameToPeriod(prayerData.nextPrayerName)
 
@@ -141,7 +151,8 @@ class PrayerTimeViewModel(private val repository: PrayerTimeRepository) : ViewMo
                     delay(1000) // Tunggu 1 detik
                 }
             } catch (e: Exception) {
-                Log.e("CountdownTimer", "Error parsing prayer time or running countdown", e)
+                // --- GANTI LOG DENGAN TIMBER ---
+                Timber.e(e, "Error parsing prayer time or running countdown")
                 _countdownState.value = "--:--:--" // Tampilkan error state
             }
         }

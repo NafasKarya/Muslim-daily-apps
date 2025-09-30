@@ -1,5 +1,3 @@
-// File: com/nafaskarya/muslimdaily/components/widgets/guestUser/DashboardContent.kt
-
 package com.nafaskarya.muslimdaily.components.widgets.guestUser
 
 import NewestCard
@@ -27,6 +25,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.nafaskarya.muslimdaily.components.shared.refresh.RefreshableContent
 import com.nafaskarya.muslimdaily.components.widgets.*
 import com.nafaskarya.muslimdaily.components.widgets.dashboard.DashboardHeader
@@ -41,6 +41,7 @@ import com.nafaskarya.muslimdaily.ui.viewmodel.HijriViewModel
 import com.nafaskarya.muslimdaily.ui.viewmodel.HijriViewModelFactory
 import com.nafaskarya.muslimdaily.ui.viewmodel.PrayerTimeViewModel
 import com.nafaskarya.muslimdaily.ui.viewmodel.PrayerTimeViewModelFactory
+import timber.log.Timber
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,7 +60,8 @@ fun DashboardContent(
             HijriRepository(RetrofitClient.hijriApiService)
         )
     ),
-    onShowSnackbar: (String) -> Unit
+    onShowSnackbar: (String) -> Unit,
+    onMenuItemClick: (MenuItem) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val headerHeightPx = with(LocalDensity.current) { Dimens.DashboardHeaderHeight.toPx() }
@@ -69,27 +71,33 @@ fun DashboardContent(
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     var permissionClickCount by rememberSaveable { mutableStateOf(0) }
 
-    // Cukup ambil uiState saja, karena countdown akan diurus oleh PrayerTimeCard
     val uiState by prayerTimeViewModel.uiState.collectAsStateWithLifecycle()
-    // --- HAPUS BARIS INI ---
-    // val countdown by prayerTimeViewModel.countdownState.collectAsStateWithLifecycle()
 
-
+    // --- FUNGSI INI SEPENUHNYA DIPERBAIKI ---
     val refreshDataWithLocation = {
         try {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            // Menggunakan getCurrentLocation untuk memaksa pengambilan lokasi baru.
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                CancellationTokenSource().token
+            ).addOnSuccessListener { location ->
                 if (location != null) {
+                    // Log untuk memastikan kita mendapatkan koordinat yang benar
+                    Timber.d("Lokasi baru didapatkan: Lat=${location.latitude}, Lon=${location.longitude}")
                     prayerTimeViewModel.refreshData(location.latitude, location.longitude)
                     hijriViewModel.fetchHijriDate()
                     onRefresh()
                 } else {
-                    onShowSnackbar("Gagal mendapatkan lokasi. Pastikan GPS aktif.")
+                    Timber.w("Gagal mendapatkan lokasi baru (hasil null).")
+                    onShowSnackbar("Gagal mendapatkan lokasi. Pastikan GPS aktif dan coba lagi.")
                 }
-            }.addOnFailureListener {
-                onShowSnackbar("Error lokasi: ${it.message}")
+            }.addOnFailureListener { exception ->
+                Timber.e(exception, "Error saat meminta lokasi baru.")
+                onShowSnackbar("Error lokasi: ${exception.message}")
             }
         } catch (e: SecurityException) {
-            onShowSnackbar("Izin lokasi diperlukan.")
+            Timber.e(e, "Izin lokasi tidak diberikan.")
+            onShowSnackbar("Izin lokasi diperlukan untuk fitur ini.")
         }
     }
 
@@ -140,7 +148,6 @@ fun DashboardContent(
             )
             Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
-            // --- UBAH DI SINI: Hapus parameter countdown ---
             PrayerTimeCard(
                 prayerTimeViewModel = prayerTimeViewModel,
                 hijriViewModel = hijriViewModel,
@@ -163,7 +170,7 @@ fun DashboardContent(
             Spacer(modifier = Modifier.height(Dimens.PaddingNormal))
             FindMosqueButton(onClick = { /* ... */ })
             Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
-            MenuGrid()
+            MenuGrid(onMenuItemClick = onMenuItemClick)
             Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
             NgajiOnlineSection()
             Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
@@ -182,7 +189,7 @@ fun DashboardContent(
 }
 
 
-// --- Previews remain unchanged ---
+// --- Kode Preview tidak berubah ---
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "Dashboard Loaded")
 @Composable
@@ -190,7 +197,8 @@ fun GuestDashboardPreview() {
     DashboardContent(
         isLoading = false,
         onRefresh = {},
-        onShowSnackbar = {}
+        onShowSnackbar = {},
+        onMenuItemClick = {}
     )
 }
 
@@ -201,7 +209,8 @@ fun GuestDashboardLoadingPreview() {
     DashboardContent(
         isLoading = true,
         onRefresh = {},
-        onShowSnackbar = {}
+        onShowSnackbar = {},
+        onMenuItemClick = {}
     )
 }
 
@@ -212,6 +221,7 @@ fun GuestDashboardTabletPreview() {
     DashboardContent(
         isLoading = false,
         onRefresh = {},
-        onShowSnackbar = {}
+        onShowSnackbar = {},
+        onMenuItemClick = {}
     )
 }
