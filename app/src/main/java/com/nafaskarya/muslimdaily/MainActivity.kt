@@ -1,3 +1,5 @@
+// Lokasi: app/src/main/java/com/nafaskarya/muslimdaily/MainActivity.kt
+
 package com.nafaskarya.muslimdaily
 
 import android.graphics.Color
@@ -16,16 +18,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.nafaskarya.muslimdaily.components.shared.quran.QuranScreen
+import androidx.navigation.navArgument
 import com.nafaskarya.muslimdaily.guest.GuestDashboard
-
+import com.nafaskarya.muslimdaily.components.shared.quran.QuranScreen
+import com.nafaskarya.muslimdaily.components.shared.quran.surah.SurahScreen
 
 
 class MainActivity : ComponentActivity() {
-    // Tambahkan anotasi @RequiresApi karena GuestDashboard membutuhkannya
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,10 +56,20 @@ class MainActivity : ComponentActivity() {
                             GuestDashboard(navController = navController)
                         }
 
-                        // --- PERUBAHAN 2: Ganti placeholder dengan layar asli ---
+                        // Rute ini untuk halaman DAFTAR Quran
                         composable("quran_route") {
                             QuranScreen(navController = navController)
                         }
+
+                        // --- 2. TAMBAHKAN BLOK INI UNTUK MEMPERBAIKI CRASH ---
+                        composable(
+                            route = "surah_detail/{surahNumber}",
+                            arguments = listOf(navArgument("surahNumber") { type = NavType.IntType })
+                        ) {
+                            // Panggil halaman detail SurahScreen di sini
+                            SurahScreen()
+                        }
+                        // --- BATAS PENAMBAHAN ---
 
                         composable("adzan_route") {
                             PlaceholderScreen(text = "Halaman Jadwal Adzan")
