@@ -3,6 +3,7 @@ package com.nafaskarya.muslimdaily.ui.utils.network
 import com.nafaskarya.muslimdaily.BuildConfig
 import com.nafaskarya.muslimdaily.ui.remotes.api.hijri.HijriCalendarApiService
 import com.nafaskarya.muslimdaily.ui.remotes.api.prayer_time.PrayerTimeApiService
+import com.nafaskarya.muslimdaily.ui.remotes.api.quran.AlQuranApiService // <-- 1. Tambahkan import
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -49,5 +50,12 @@ object RetrofitClient {
     val prayerTimeApiService: PrayerTimeApiService by lazy {
         retrofit.create(PrayerTimeApiService::class.java)
     }
-}
 
+    /**
+     * --- TAMBAHKAN INI ---
+     * Lazily provides the [AlQuranApiService].
+     */
+    val alQuranApiService: AlQuranApiService by lazy {
+        retrofit.create(AlQuranApiService::class.java)
+    }
+}

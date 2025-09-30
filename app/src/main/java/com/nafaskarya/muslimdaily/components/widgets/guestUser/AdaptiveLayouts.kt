@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.nafaskarya.muslimdaily.components.shared.SearchPage
+import com.nafaskarya.muslimdaily.components.widgets.MenuItem // Pastikan MenuItem di-import
 import com.nafaskarya.muslimdaily.components.widgets.ResponsiveAppNavigation
 import com.nafaskarya.muslimdaily.components.widgets.data.NavItem
 
@@ -26,9 +27,10 @@ fun CompactScreenLayout(
     selectedItemIndex: Int,
     onItemSelected: (Int) -> Unit,
     isLoading: Boolean,
-    // --- PERUBAHAN 1: Terima parameter onRefresh ---
     onRefresh: () -> Unit,
-    onShowSnackbar: (String) -> Unit
+    onShowSnackbar: (String) -> Unit,
+    // --- PERUBAHAN 1: Terima parameter onMenuItemClick ---
+    onMenuItemClick: (MenuItem) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -44,9 +46,10 @@ fun CompactScreenLayout(
                 when (pageIndex) {
                     0 -> DashboardContent(
                         isLoading = isLoading,
-                        // --- PERUBAHAN 2: Kirimkan onRefresh ke DashboardContent ---
                         onRefresh = onRefresh,
-                        onShowSnackbar = onShowSnackbar
+                        onShowSnackbar = onShowSnackbar,
+                        // --- PERUBAHAN 2: Kirimkan onMenuItemClick ke DashboardContent ---
+                        onMenuItemClick = onMenuItemClick
                     )
                     1 -> SearchPage()
                     // ... tambahkan halaman lain di sini
@@ -73,9 +76,10 @@ fun ExpandedScreenLayout(
     selectedItemIndex: Int,
     onItemSelected: (Int) -> Unit,
     isLoading: Boolean,
-    // --- PERUBAHAN 3: Terima parameter onRefresh ---
     onRefresh: () -> Unit,
-    onShowSnackbar: (String) -> Unit
+    onShowSnackbar: (String) -> Unit,
+    // --- PERUBAHAN 3: Terima parameter onMenuItemClick ---
+    onMenuItemClick: (MenuItem) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -97,9 +101,10 @@ fun ExpandedScreenLayout(
                 when (pageIndex) {
                     0 -> DashboardContent(
                         isLoading = isLoading,
-                        // --- PERUBAHAN 4: Kirimkan onRefresh ke DashboardContent ---
                         onRefresh = onRefresh,
-                        onShowSnackbar = onShowSnackbar
+                        onShowSnackbar = onShowSnackbar,
+                        // --- PERUBAHAN 4: Kirimkan onMenuItemClick ke DashboardContent ---
+                        onMenuItemClick = onMenuItemClick
                     )
                     1 -> SearchPage()
                     // ... tambahkan halaman lain di sini
