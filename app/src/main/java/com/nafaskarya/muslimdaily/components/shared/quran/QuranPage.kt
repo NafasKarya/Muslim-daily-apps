@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.nafaskarya.muslimdaily.components.shared.shimmer.QuranListLoadingShimmer
+import com.nafaskarya.muslimdaily.components.shared.shimmer.quran.QuranListLoadingShimmer
 import com.nafaskarya.muslimdaily.components.widgets.quran.QuranListContent
 import com.nafaskarya.muslimdaily.ui.data.quran.Surah // Pastikan import ini ada
 import com.nafaskarya.muslimdaily.ui.repository.quran.AlQuranRepository

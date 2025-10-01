@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nafaskarya.muslimdaily.R
-import com.nafaskarya.muslimdaily.components.shared.shimmer.ShimmerPrayerTimeCard
+import com.nafaskarya.muslimdaily.components.shared.shimmer.prayer.ShimmerPrayerTimeCard
 import com.nafaskarya.muslimdaily.components.widgets.prayerTime.NewPrayerTimeCardUI
 import com.nafaskarya.muslimdaily.components.widgets.prayerTime.PrayerTimeHeader
 import com.nafaskarya.muslimdaily.ui.utils.state.PrayerTimeUiState

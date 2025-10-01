@@ -1,5 +1,3 @@
-// Lokasi: app/src/main/java/com/nafaskarya/muslimdaily/MainActivity.kt
-
 package com.nafaskarya.muslimdaily
 
 import android.graphics.Color
@@ -18,27 +16,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.nafaskarya.muslimdaily.guest.GuestDashboard
 import com.nafaskarya.muslimdaily.components.shared.quran.QuranScreen
+import com.nafaskarya.muslimdaily.guest.GuestDashboard
 import com.nafaskarya.muslimdaily.components.shared.quran.surah.SurahScreen
+import com.nafaskarya.muslimdaily.ui.repository.quran.surah.SurahAlQuranRepository
+import com.nafaskarya.muslimdaily.ui.utils.network.RetrofitClient // <-- IMPORT SINGLETON ANDA
+import com.nafaskarya.muslimdaily.ui.viewmodel.SurahAlQuranViewModelFactory
 
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(
-                Color.TRANSPARENT,
-                Color.TRANSPARENT,
-            )
-        )
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT))
 
         setContent {
             MaterialTheme {
@@ -56,20 +52,33 @@ class MainActivity : ComponentActivity() {
                             GuestDashboard(navController = navController)
                         }
 
-                        // Rute ini untuk halaman DAFTAR Quran
                         composable("quran_route") {
                             QuranScreen(navController = navController)
                         }
 
-                        // --- 2. TAMBAHKAN BLOK INI UNTUK MEMPERBAIKI CRASH ---
                         composable(
                             route = "surah_detail/{surahNumber}",
                             arguments = listOf(navArgument("surahNumber") { type = NavType.IntType })
-                        ) {
-                            // Panggil halaman detail SurahScreen di sini
-                            SurahScreen()
+                        ) { backStackEntry ->
+                            val surahNumber = backStackEntry.arguments!!.getInt("surahNumber")
+
+                            // --- PERBAIKAN: Menggunakan RetrofitClient Anda ---
+
+                            // 1. Ambil ApiService langsung dari singleton Anda. Jauh lebih bersih!
+                            val apiService = RetrofitClient.surahAlQuranApiService
+
+                            // 2. Buat Factory untuk ViewModel
+                            val factory = SurahAlQuranViewModelFactory(
+                                SurahAlQuranRepository(apiService)
+                            )
+
+                            // 3. Panggil SurahScreen dengan semua parameter yang dibutuhkan
+                            SurahScreen(
+                                surahNumber = surahNumber,
+                                viewModel = viewModel(factory = factory),
+                                onBackClick = { navController.navigateUp() }
+                            )
                         }
-                        // --- BATAS PENAMBAHAN ---
 
                         composable("adzan_route") {
                             PlaceholderScreen(text = "Halaman Jadwal Adzan")
@@ -85,7 +94,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Composable sementara untuk halaman yang belum dibuat
 @Composable
 fun PlaceholderScreen(text: String) {
     Box(
@@ -95,3 +103,4 @@ fun PlaceholderScreen(text: String) {
         Text(text)
     }
 }
+

@@ -1,4 +1,4 @@
-package com.nafaskarya.muslimdaily.components.shared.shimmer
+package com.nafaskarya.muslimdaily.components.shared.shimmer.prayer
 
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
