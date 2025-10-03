@@ -10,17 +10,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.nafaskarya.muslimdaily.components.widgets.MenuItem // Pastikan MenuItem di-import
+import com.nafaskarya.muslimdaily.components.widgets.MenuItem
 import com.nafaskarya.muslimdaily.components.widgets.data.guestDashboardNavItems
 import com.nafaskarya.muslimdaily.components.widgets.guestUser.CompactScreenLayout
 import com.nafaskarya.muslimdaily.components.widgets.guestUser.ExpandedScreenLayout
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun GuestDashboard(
-    // --- PERUBAHAN 1: Terima NavController untuk navigasi ---
     navController: NavController
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -29,19 +27,13 @@ fun GuestDashboard(
     val activity = LocalContext.current as Activity
     val windowSizeClass = calculateWindowSizeClass(activity).widthSizeClass
 
-    var isLoading by remember { mutableStateOf(true) }
-
-    val refreshDashboard: () -> Unit = {
-        coroutineScope.launch {
-            isLoading = true
-            delay(1500)
-            isLoading = false
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        refreshDashboard()
-    }
+    // --- DIHAPUS ---
+    // Logika isLoading dan onRefresh tidak lagi diperlukan di sini.
+    // DashboardScreen akan menanganinya secara internal.
+    // var isLoading by remember { mutableStateOf(true) }
+    // val refreshDashboard: () -> Unit = { ... }
+    // LaunchedEffect(Unit) { ... }
+    // ---------------
 
     val onNavItemClick: (Int) -> Unit = { index ->
         coroutineScope.launch {
@@ -49,12 +41,12 @@ fun GuestDashboard(
         }
     }
 
-    // --- PERUBAHAN 2: Definisikan aksi klik menu di sini ---
     val onMenuItemClick: (MenuItem) -> Unit = { menuItem ->
         when (menuItem.title) {
             "Quran" -> navController.navigate("quran_route")
-            "Adzan" -> navController.navigate("adzan_route")
+            "Kitab Literal" -> navController.navigate("kitab_route")
             "Qibla" -> navController.navigate("qibla_route")
+            "Pengaturan" -> navController.navigate("settings_route")
             // Tambahkan navigasi untuk item lain jika perlu
         }
     }
@@ -68,10 +60,8 @@ fun GuestDashboard(
                 items = guestDashboardNavItems,
                 selectedItemIndex = selectedItemIndex,
                 onItemSelected = onNavItemClick,
-                isLoading = isLoading,
-                onRefresh = refreshDashboard,
-                onShowSnackbar = { /* tidak ada aksi */ },
-                // --- PERUBAHAN 3: Kirim aksi klik ke bawah ---
+                // --- PERBAIKAN: Hapus parameter `isLoading` dan `onRefresh` ---
+                onShowSnackbar = { /* TODO: Implementasi Snackbar */ },
                 onMenuItemClick = onMenuItemClick
             )
         }
@@ -83,10 +73,8 @@ fun GuestDashboard(
                 items = guestDashboardNavItems,
                 selectedItemIndex = selectedItemIndex,
                 onItemSelected = onNavItemClick,
-                isLoading = isLoading,
-                onRefresh = refreshDashboard,
-                onShowSnackbar = { /* tidak ada aksi */ },
-                // --- PERUBAHAN 3: Kirim aksi klik ke bawah ---
+                // --- PERBAIKAN: Hapus parameter `isLoading` dan `onRefresh` ---
+                onShowSnackbar = { /* TODO: Implementasi Snackbar */ },
                 onMenuItemClick = onMenuItemClick
             )
         }

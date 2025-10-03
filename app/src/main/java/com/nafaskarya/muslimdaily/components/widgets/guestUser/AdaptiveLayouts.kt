@@ -13,8 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.nafaskarya.muslimdaily.components.shared.SearchPage
-import com.nafaskarya.muslimdaily.components.widgets.MenuItem // Pastikan MenuItem di-import
+import com.nafaskarya.muslimdaily.components.widgets.MenuItem
 import com.nafaskarya.muslimdaily.components.widgets.ResponsiveAppNavigation
+import com.nafaskarya.muslimdaily.components.widgets.dashboard.DashboardScreen
 import com.nafaskarya.muslimdaily.components.widgets.data.NavItem
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -26,10 +27,7 @@ fun CompactScreenLayout(
     items: List<NavItem>,
     selectedItemIndex: Int,
     onItemSelected: (Int) -> Unit,
-    isLoading: Boolean,
-    onRefresh: () -> Unit,
     onShowSnackbar: (String) -> Unit,
-    // --- PERUBAHAN 1: Terima parameter onMenuItemClick ---
     onMenuItemClick: (MenuItem) -> Unit
 ) {
     Column(
@@ -37,26 +35,23 @@ fun CompactScreenLayout(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Konten utama (Pager)
         Box(modifier = Modifier.weight(1f)) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 when (pageIndex) {
-                    0 -> DashboardContent(
-                        isLoading = isLoading,
-                        onRefresh = onRefresh,
-                        onShowSnackbar = onShowSnackbar,
-                        // --- PERUBAHAN 2: Kirimkan onMenuItemClick ke DashboardContent ---
-                        onMenuItemClick = onMenuItemClick
+                    // --- PERBAIKAN: Panggil DashboardScreen, bukan DashboardContent ---
+                    0 -> DashboardScreen(
+                        isLoading = false, // isLoading kini dikelola di dalam DashboardScreen
+                        onMenuItemClick = onMenuItemClick,
+                        onShowSnackbar = onShowSnackbar
                     )
                     1 -> SearchPage()
-                    // ... tambahkan halaman lain di sini
+                    // ... halaman lain
                 }
             }
         }
-
         ResponsiveAppNavigation(
             windowSizeClass = windowSizeClass,
             items = items,
@@ -75,10 +70,7 @@ fun ExpandedScreenLayout(
     items: List<NavItem>,
     selectedItemIndex: Int,
     onItemSelected: (Int) -> Unit,
-    isLoading: Boolean,
-    onRefresh: () -> Unit,
     onShowSnackbar: (String) -> Unit,
-    // --- PERUBAHAN 3: Terima parameter onMenuItemClick ---
     onMenuItemClick: (MenuItem) -> Unit
 ) {
     Row(
@@ -92,22 +84,20 @@ fun ExpandedScreenLayout(
             selectedItemIndex = selectedItemIndex,
             onItemSelected = onItemSelected
         )
-
         Box(modifier = Modifier.weight(1f)) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 when (pageIndex) {
-                    0 -> DashboardContent(
-                        isLoading = isLoading,
-                        onRefresh = onRefresh,
-                        onShowSnackbar = onShowSnackbar,
-                        // --- PERUBAHAN 4: Kirimkan onMenuItemClick ke DashboardContent ---
-                        onMenuItemClick = onMenuItemClick
+                    // --- PERBAIKAN: Panggil DashboardScreen, bukan DashboardContent ---
+                    0 -> DashboardScreen(
+                        isLoading = false, // isLoading kini dikelola di dalam DashboardScreen
+                        onMenuItemClick = onMenuItemClick,
+                        onShowSnackbar = onShowSnackbar
                     )
                     1 -> SearchPage()
-                    // ... tambahkan halaman lain di sini
+                    // ... halaman lain
                 }
             }
         }

@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,12 +23,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.nafaskarya.muslimdaily.components.shared.notifications.SettingsScreen
 import com.nafaskarya.muslimdaily.components.shared.quran.QuranScreen
 import com.nafaskarya.muslimdaily.guest.GuestDashboard
 import com.nafaskarya.muslimdaily.components.shared.quran.surah.SurahScreen
+import com.nafaskarya.muslimdaily.ui.kitab.KitabMenuScreen // <-- IMPORT BARU
+import com.nafaskarya.muslimdaily.ui.repository.notification.SettingsRepository
 import com.nafaskarya.muslimdaily.ui.repository.quran.surah.SurahAlQuranRepository
-import com.nafaskarya.muslimdaily.ui.utils.network.RetrofitClient // <-- IMPORT SINGLETON ANDA
+import com.nafaskarya.muslimdaily.ui.utils.network.RetrofitClient
 import com.nafaskarya.muslimdaily.ui.viewmodel.SurahAlQuranViewModelFactory
+import com.nafaskarya.muslimdaily.viewmodel.SettingsViewModel
+import com.nafaskarya.muslimdaily.viewmodel.SettingsViewModelFactory
 
 
 class MainActivity : ComponentActivity() {
@@ -52,6 +58,20 @@ class MainActivity : ComponentActivity() {
                             GuestDashboard(navController = navController)
                         }
 
+                        composable("settings_route") {
+                            // Buat repository dan ViewModel untuk SettingsScreen
+                            val settingsRepository = remember { SettingsRepository(applicationContext) }
+                            val factory = remember(settingsRepository) {
+                                SettingsViewModelFactory(settingsRepository, applicationContext)
+                            }
+                            val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
+
+                            SettingsScreen(
+                                viewModel = settingsViewModel,
+                                onBackClick = { navController.navigateUp() }
+                            )
+                        }
+
                         composable("quran_route") {
                             QuranScreen(navController = navController)
                         }
@@ -61,18 +81,10 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("surahNumber") { type = NavType.IntType })
                         ) { backStackEntry ->
                             val surahNumber = backStackEntry.arguments!!.getInt("surahNumber")
-
-                            // --- PERBAIKAN: Menggunakan RetrofitClient Anda ---
-
-                            // 1. Ambil ApiService langsung dari singleton Anda. Jauh lebih bersih!
                             val apiService = RetrofitClient.surahAlQuranApiService
-
-                            // 2. Buat Factory untuk ViewModel
                             val factory = SurahAlQuranViewModelFactory(
                                 SurahAlQuranRepository(apiService)
                             )
-
-                            // 3. Panggil SurahScreen dengan semua parameter yang dibutuhkan
                             SurahScreen(
                                 surahNumber = surahNumber,
                                 viewModel = viewModel(factory = factory),
@@ -80,8 +92,9 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable("adzan_route") {
-                            PlaceholderScreen(text = "Halaman Jadwal Adzan")
+                        composable("kitab_route") {
+                            // <-- RUTE DIUBAH KE LAYAR MENU KITAB --
+                            KitabMenuScreen()
                         }
 
                         composable("qibla_route") {
@@ -103,4 +116,3 @@ fun PlaceholderScreen(text: String) {
         Text(text)
     }
 }
-

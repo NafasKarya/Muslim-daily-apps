@@ -1,3 +1,5 @@
+// File: app/build.gradle.kts
+
 // --- PERBAIKAN: Tambahkan import untuk kelas Java di sini ---
 import java.util.Properties
 import java.io.FileInputStream
@@ -6,8 +8,8 @@ import java.io.FileInputStream
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -15,9 +17,9 @@ android {
     compileSdk = 35
 
     val keystorePropertiesFile = rootProject.file("keystore.properties")
-    val keystoreProperties = Properties()
+    val keystoreProperties = Properties() // Sekarang tidak error
     if (keystorePropertiesFile.exists()) {
-        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile)) // Sekarang tidak error
     }
 
     signingConfigs {
@@ -52,8 +54,6 @@ android {
             buildConfigField("String", "BASE_URL", "\"https://api.production.com/\"")
         }
         debug {
-            // --- PERUBAHAN DI SINI ---
-            // Mengganti 127.0.0.1 dengan 10.0.2.2 untuk koneksi dari emulator ke localhost
             buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
         }
     }
@@ -63,6 +63,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
         isCoreLibraryDesugaringEnabled = true
     }
+
+
 
     kotlinOptions {
         jvmTarget = "1.8"
@@ -75,41 +77,60 @@ android {
 }
 
 dependencies {
-    // ... (sisa dependensi Anda tidak perlu diubah) ...
+    // Core & Material
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    val composeBom = platform("androidx.compose:compose-bom:2023.10.01")
+
+    // Compose
+    val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation("io.coil-kt:coil-compose:2.6.0")
-    implementation("io.coil-kt:coil-gif:2.6.0")
-    implementation("com.google.android.gms:play-services-location:21.3.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")
-    implementation("androidx.datastore:datastore:1.1.1")
-    implementation("com.google.protobuf:protobuf-javalite:3.25.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-    implementation("com.valentinilk.shimmer:compose-shimmer:1.2.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material3.windowSizeClass)
+    implementation(libs.androidx.ui.tooling.preview)
+    debugImplementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.material.icons.extended)
+
+    // Activity, Lifecycle, Navigation
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation.compose)
+
+    // Data
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.protobuf.javalite)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+    implementation(libs.kotlinx.serialization.json)
+
+    // Coroutines & Location
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.play.services.location)
+
+    // Utility & UI Helpers
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.shimmer)
+    implementation(libs.timber)
+
+    implementation("androidx.compose.foundation:foundation:1.6.5")
+
+    // Worker
+    implementation(libs.androidx.work.runtime.ktx)
+
+    // Desugaring
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
-

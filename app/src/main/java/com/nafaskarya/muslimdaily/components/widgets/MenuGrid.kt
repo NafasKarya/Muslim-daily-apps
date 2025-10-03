@@ -37,7 +37,7 @@ fun MenuGrid(
 ) {
     val menuItems = listOf(
         MenuItem("Quran", AppImages.AlQuran),
-        MenuItem("Adzan", AppImages.Reminder),
+        MenuItem("Kitab Literal", AppImages.Reminder),
         MenuItem("Qibla", AppImages.Qibla),
         MenuItem("Donation", AppImages.DzikirDaily),
         MenuItem("All", AppImages.DuaDaily)

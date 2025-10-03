@@ -1,4 +1,4 @@
-package com.nafaskarya.muslimdaily.components.widgets.guestUser
+package com.nafaskarya.muslimdaily.components.widgets.guestUser // Pastikan package ini benar
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.nafaskarya.muslimdaily.components.shared.SearchPage
+import com.nafaskarya.muslimdaily.components.widgets.dashboard.DashboardScreen
 import com.nafaskarya.muslimdaily.ui.utils.Screen
 
 /**
@@ -17,7 +18,7 @@ import com.nafaskarya.muslimdaily.ui.utils.Screen
 fun AppContent(
     navController: NavHostController,
     isLoading: Boolean,
-    onRefresh: () -> Unit,
+    // onRefresh tidak lagi diperlukan di sini, karena DashboardScreen menanganinya
     onShowSnackbar: (String) -> Unit
 ) {
     NavHost(
@@ -25,24 +26,17 @@ fun AppContent(
         startDestination = Screen.Dashboard.route
     ) {
         composable(Screen.Dashboard.route) {
-            DashboardContent(
+            // --- PERBAIKAN: Panggil DashboardScreen, BUKAN DashboardContent ---
+            DashboardScreen(
                 isLoading = isLoading,
-                onRefresh = onRefresh,
                 onShowSnackbar = onShowSnackbar,
-                // --- PERBAIKAN: Tambahkan parameter onMenuItemClick ---
                 onMenuItemClick = { menuItem ->
-                    // Di sinilah logika navigasi utama Anda
+                    // Logika navigasi saat item menu di-klik
                     when (menuItem.title) {
-                        "Quran" -> {
-                            navController.navigate("quran_route") // Ganti dengan route Quran Anda
-                        }
-                        "Adzan" -> {
-                            // navController.navigate("adzan_route")
-                        }
-                        "Qibla" -> {
-                            // navController.navigate("qibla_route")
-                        }
-                        // Tambahkan case lain jika diperlukan
+                        "Quran" -> navController.navigate("quran_route")
+                        "Kitab Literal" -> navController.navigate("kitab_route")
+                        "Qibla" -> navController.navigate("qibla_route")
+                        "Pengaturan" -> navController.navigate("settings_route")
                     }
                 }
             )
@@ -54,6 +48,14 @@ fun AppContent(
             // Composable untuk halaman Quran Anda
             // Contoh: QuranScreen(navController = navController)
         }
-        // bisa tambahkan route lain: qibla_route, dll.
+        composable("kitab_route") {
+            // Composable untuk halaman Adzan
+        }
+        composable("qibla_route") {
+            // Composable untuk halaman Qibla
+        }
+        composable("settings_route") {
+            // Composable untuk halaman Pengaturan
+        }
     }
 }

@@ -16,39 +16,31 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nafaskarya.muslimdaily.R
 import com.nafaskarya.muslimdaily.components.shared.shimmer.prayer.ShimmerPrayerTimeCard
 import com.nafaskarya.muslimdaily.components.widgets.prayerTime.NewPrayerTimeCardUI
 import com.nafaskarya.muslimdaily.components.widgets.prayerTime.PrayerTimeHeader
+import com.nafaskarya.muslimdaily.ui.data.hijri.HijriDate
 import com.nafaskarya.muslimdaily.ui.utils.state.PrayerTimeUiState
-import com.nafaskarya.muslimdaily.ui.viewmodel.HijriViewModel
-import com.nafaskarya.muslimdaily.ui.viewmodel.PrayerTimeViewModel
+import com.nafaskarya.muslimdaily.ui.utils.state.UiState
 
 /**
- * A wrapper composable that decides which prayer time UI to show based on the current state.
- * It handles Loading, Success, and Error/Permission states.
- *
- * @param prayerTimeViewModel The ViewModel for prayer time data.
- * @param hijriViewModel The ViewModel for Hijri date data.
- * @param onShowSnackbar A lambda to show a snackbar message.
- * @param onRequestPermissionClick A lambda to be invoked when the user clicks the button to grant location permission.
+ * A stateless composable that displays the prayer time UI based on the given states.
  */
-@RequiresApi(Build.VERSION_CODES.O) // Diperlukan karena ViewModel
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PrayerTimeCard(
-    prayerTimeViewModel: PrayerTimeViewModel,
-    hijriViewModel: HijriViewModel,
+    // --- TERIMA STATE, BUKAN VIEWMODEL ---
+    prayerTimeState: PrayerTimeUiState,
+    hijriState: UiState<HijriDate>,
+    countdown: String,
+    // ------------------------------------
     onShowSnackbar: (message: String) -> Unit,
     onRequestPermissionClick: () -> Unit
 ) {
-    val prayerTimeUiState by prayerTimeViewModel.uiState.collectAsStateWithLifecycle()
-    // BENAR
-    val hijriUiState by hijriViewModel.hijriDateState.collectAsStateWithLifecycle() // Pastikan nama state ini benar
-    // --- UBAH DI SINI (1): Ambil state countdown yang dinamis ---
-    val countdown by prayerTimeViewModel.countdownState.collectAsStateWithLifecycle()
+    // --- HAPUS SEMUA `collectAsStateWithLifecycle` DARI SINI ---
 
-    when (val state = prayerTimeUiState) {
+    when (val state = prayerTimeState) {
         is PrayerTimeUiState.Loading -> {
             ShimmerPrayerTimeCard()
         }
@@ -56,10 +48,9 @@ fun PrayerTimeCard(
             if (state.isRefreshing) {
                 ShimmerPrayerTimeCard()
             } else {
-                // --- UBAH DI SINI (2): Teruskan `countdown` ke NewPrayerTimeCardUI ---
                 NewPrayerTimeCardUI(
                     state = state,
-                    hijriState = hijriUiState,
+                    hijriState = hijriState,
                     countdown = countdown
                 )
             }
