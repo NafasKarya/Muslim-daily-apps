@@ -23,11 +23,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.nafaskarya.muslimdaily.components.shared.kitab.KitabScreen // <-- DITAMBAHKAN: Import untuk detail kitab
 import com.nafaskarya.muslimdaily.components.shared.notifications.SettingsScreen
 import com.nafaskarya.muslimdaily.components.shared.quran.QuranScreen
 import com.nafaskarya.muslimdaily.guest.GuestDashboard
 import com.nafaskarya.muslimdaily.components.shared.quran.surah.SurahScreen
-import com.nafaskarya.muslimdaily.ui.kitab.KitabMenuScreen // <-- IMPORT BARU
+import com.nafaskarya.muslimdaily.ui.kitab.KitabMenuScreen
 import com.nafaskarya.muslimdaily.ui.repository.notification.SettingsRepository
 import com.nafaskarya.muslimdaily.ui.repository.quran.surah.SurahAlQuranRepository
 import com.nafaskarya.muslimdaily.ui.utils.network.RetrofitClient
@@ -54,12 +55,12 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = "dashboard_route"
                     ) {
+                        // ... (composable lainnya tidak berubah)
                         composable("dashboard_route") {
                             GuestDashboard(navController = navController)
                         }
 
                         composable("settings_route") {
-                            // Buat repository dan ViewModel untuk SettingsScreen
                             val settingsRepository = remember { SettingsRepository(applicationContext) }
                             val factory = remember(settingsRepository) {
                                 SettingsViewModelFactory(settingsRepository, applicationContext)
@@ -92,9 +93,18 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
+                        // DIUBAH: Sediakan parameter onNavigateToDetail
                         composable("kitab_route") {
-                            // <-- RUTE DIUBAH KE LAYAR MENU KITAB --
-                            KitabMenuScreen()
+                            KitabMenuScreen(
+                                onNavigateToDetail = {
+                                    navController.navigate("kitab_detail_route")
+                                }
+                            )
+                        }
+
+                        // DITAMBAHKAN: Rute baru untuk halaman detail kitab
+                        composable("kitab_detail_route") {
+                            KitabScreen()
                         }
 
                         composable("qibla_route") {

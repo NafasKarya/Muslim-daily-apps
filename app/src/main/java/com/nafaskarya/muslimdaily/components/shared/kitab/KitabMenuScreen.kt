@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable // DITAMBAHKAN
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -60,30 +61,43 @@ val categories = listOf(
 
 
 @Composable
-fun KitabMenuScreen() {
-    // Box paling luar dengan background putih
+fun KitabMenuScreen(
+    onNavigateToDetail: () -> Unit // DIUBAH: Tambahkan parameter untuk navigasi
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Column untuk konten yang bisa di-scroll
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // Banner section
-            FeaturedPagerSection(books = featuredBooks)
+            FeaturedPagerSection(
+                books = featuredBooks,
+                onItemClick = onNavigateToDetail // DIUBAH: Teruskan aksi klik
+            )
 
-            // Sisa konten dengan background putih
             Column(Modifier.background(Color.White)) {
                 Spacer(modifier = Modifier.height(24.dp))
-                BookSection(title = "Kitab Klasik Al-Qazwini", books = alQazwiniBooks)
+                BookSection(
+                    title = "Kitab Klasik Al-Qazwini",
+                    books = alQazwiniBooks,
+                    onItemClick = onNavigateToDetail // DIUBAH: Teruskan aksi klik
+                )
                 Spacer(modifier = Modifier.height(24.dp))
-                BookSection(title = "Kitab Klasik Al-Jahiz", books = alJahizBooks)
+                BookSection(
+                    title = "Kitab Klasik Al-Jahiz",
+                    books = alJahizBooks,
+                    onItemClick = onNavigateToDetail // DIUBAH: Teruskan aksi klik
+                )
                 Spacer(modifier = Modifier.height(24.dp))
-                CategorySection(title = "Kategori Kitab Klasik", categories = categories)
+                CategorySection(
+                    title = "Kategori Kitab Klasik",
+                    categories = categories,
+                    onItemClick = onNavigateToDetail // DIUBAH: Teruskan aksi klik
+                )
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -93,7 +107,10 @@ fun KitabMenuScreen() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FeaturedPagerSection(books: List<Book>) {
+fun FeaturedPagerSection(
+    books: List<Book>,
+    onItemClick: () -> Unit // DIUBAH: Tambahkan parameter klik
+) {
     Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -121,10 +138,12 @@ fun FeaturedPagerSection(books: List<Book>) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp),
+                    .height(180.dp)
+                    .clickable { onItemClick() }, // DITAMBAHKAN: Aksi klik
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
+                // ... (konten card tidak berubah)
                 Box {
                     Image(
                         painter = painterResource(id = book.imageRes),
@@ -190,7 +209,11 @@ fun FeaturedPagerSection(books: List<Book>) {
 }
 
 @Composable
-fun BookSection(title: String, books: List<Book>) {
+fun BookSection(
+    title: String,
+    books: List<Book>,
+    onItemClick: () -> Unit // DIUBAH: Tambahkan parameter klik
+) {
     Column {
         SectionHeader(title = title, onSeeAllClick = { /* TODO */ })
         Spacer(modifier = Modifier.height(8.dp))
@@ -198,13 +221,19 @@ fun BookSection(title: String, books: List<Book>) {
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(books) { book -> BookCard(book = book) }
+            items(books) { book ->
+                BookCard(book = book, onClick = onItemClick) // DIUBAH: Teruskan aksi klik
+            }
         }
     }
 }
 
 @Composable
-fun CategorySection(title: String, categories: List<Category>) {
+fun CategorySection(
+    title: String,
+    categories: List<Category>,
+    onItemClick: () -> Unit // DIUBAH: Tambahkan parameter klik
+) {
     Column {
         SectionHeader(title = title, onSeeAllClick = { /* TODO */ })
         Spacer(modifier = Modifier.height(8.dp))
@@ -212,11 +241,14 @@ fun CategorySection(title: String, categories: List<Category>) {
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(categories) { category -> CategoryCircle(category = category) }
+            items(categories) { category ->
+                CategoryCircle(category = category, onClick = onItemClick) // DIUBAH: Teruskan aksi klik
+            }
         }
     }
 }
 
+// ... (SectionHeader tidak berubah)
 @Composable
 fun SectionHeader(title: String, onSeeAllClick: () -> Unit) {
     Row(
@@ -240,10 +272,16 @@ fun SectionHeader(title: String, onSeeAllClick: () -> Unit) {
     }
 }
 
+
 @Composable
-fun BookCard(book: Book) {
+fun BookCard(
+    book: Book,
+    onClick: () -> Unit // DIUBAH: Tambahkan parameter klik
+) {
     Column(
-        modifier = Modifier.width(130.dp),
+        modifier = Modifier
+            .width(130.dp)
+            .clickable { onClick() }, // DITAMBAHKAN: Aksi klik
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Card(
@@ -272,10 +310,15 @@ fun BookCard(book: Book) {
 }
 
 @Composable
-fun CategoryCircle(category: Category) {
+fun CategoryCircle(
+    category: Category,
+    onClick: () -> Unit // DIUBAH: Tambahkan parameter klik
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(70.dp)
+        modifier = Modifier
+            .width(70.dp)
+            .clickable { onClick() } // DITAMBAHKAN: Aksi klik
     ) {
         Image(
             painter = painterResource(id = category.imageRes),
@@ -294,11 +337,11 @@ fun CategoryCircle(category: Category) {
     }
 }
 
-
 @Preview(showBackground = true, device = "id:pixel_6")
 @Composable
 fun KitabMenuScreenPreview() {
     MaterialTheme {
-        KitabMenuScreen()
+        // Preview tidak perlu navigasi, jadi kita berikan lambda kosong
+        KitabMenuScreen(onNavigateToDetail = {})
     }
 }
