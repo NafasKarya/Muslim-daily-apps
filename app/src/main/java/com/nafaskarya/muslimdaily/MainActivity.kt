@@ -8,14 +8,11 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -23,11 +20,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.nafaskarya.muslimdaily.components.shared.kitab.KitabScreen // <-- DITAMBAHKAN: Import untuk detail kitab
+import com.nafaskarya.muslimdaily.components.shared.kitab.KitabScreen
 import com.nafaskarya.muslimdaily.components.shared.notifications.SettingsScreen
 import com.nafaskarya.muslimdaily.components.shared.quran.QuranScreen
-import com.nafaskarya.muslimdaily.guest.GuestDashboard
 import com.nafaskarya.muslimdaily.components.shared.quran.surah.SurahScreen
+import com.nafaskarya.muslimdaily.features.podcast.ui.screen.DetailPodcastScreen
+import com.nafaskarya.muslimdaily.features.podcast.ui.screen.PlayingPodcastScreen // <-- IMPORT BARU
+import com.nafaskarya.muslimdaily.features.podcast.ui.screen.PodcastScreen
+import com.nafaskarya.muslimdaily.guest.GuestDashboard
 import com.nafaskarya.muslimdaily.ui.kitab.KitabMenuScreen
 import com.nafaskarya.muslimdaily.ui.repository.notification.SettingsRepository
 import com.nafaskarya.muslimdaily.ui.repository.quran.surah.SurahAlQuranRepository
@@ -93,7 +93,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // DIUBAH: Sediakan parameter onNavigateToDetail
                         composable("kitab_route") {
                             KitabMenuScreen(
                                 onNavigateToDetail = {
@@ -102,27 +101,38 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // DITAMBAHKAN: Rute baru untuk halaman detail kitab
                         composable("kitab_detail_route") {
                             KitabScreen()
                         }
 
-                        composable("qibla_route") {
-                            PlaceholderScreen(text = "Halaman Arah Qiblat")
+                        composable("podcast_route") {
+                            PodcastScreen(
+                                onNavigateToDetail = {
+                                    navController.navigate("podcast_detail_route")
+                                }
+                            )
+                        }
+
+                        // --- PERBAIKAN DI SINI ---
+                        composable("podcast_detail_route") {
+                            DetailPodcastScreen(
+                                onBackClick = { navController.navigateUp() },
+                                // Memberikan aksi navigasi untuk parameter onNavigateToPlaying
+                                onNavigateToPlaying = {
+                                    navController.navigate("playing_podcast_route")
+                                }
+                            )
+                        }
+
+                        // --- RUTE BARU DITAMBAHKAN DI SINI ---
+                        composable("playing_podcast_route") {
+                            PlayingPodcastScreen(
+                                onBackClick = { navController.navigateUp() }
+                            )
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun PlaceholderScreen(text: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text)
     }
 }

@@ -35,7 +35,7 @@ fun AppContent(
                     when (menuItem.title) {
                         "Quran" -> navController.navigate("quran_route")
                         "Kitab Literal" -> navController.navigate("kitab_route")
-                        "Qibla" -> navController.navigate("qibla_route")
+                        "Podcast Islami" -> navController.navigate("podcast_route")
                         "Pengaturan" -> navController.navigate("settings_route")
                     }
                 }
@@ -51,7 +51,7 @@ fun AppContent(
         composable("kitab_route") {
             // Composable untuk halaman Adzan
         }
-        composable("qibla_route") {
+        composable("podcast_route") {
             // Composable untuk halaman Qibla
         }
         composable("settings_route") {

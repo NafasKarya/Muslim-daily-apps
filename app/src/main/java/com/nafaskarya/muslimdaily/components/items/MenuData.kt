@@ -10,6 +10,6 @@ val menuItems = listOf(
     // --- PERBAIKAN: Ganti nama parameter menjadi `iconRes` ---
     MenuItem(title = "Quran", iconRes = R.drawable.al_quran),
     MenuItem(title = "Kitab Literal", iconRes = R.drawable.al_quran),
-    MenuItem(title = "Qibla", iconRes = R.drawable.al_quran),
+    MenuItem(title = "Podcast Islami", iconRes = R.drawable.al_quran),
     MenuItem(title = "Pengaturan", iconRes = R.drawable.al_quran)
 )
