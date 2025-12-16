@@ -12,9 +12,6 @@
 
     <style name="Theme.MuslimDaily.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@android:color/white</item>
-
-        <item name="windowSplashScreenAnimatedIcon">@drawable/transparent_icon</item>
-
         <item name="postSplashScreenTheme">@style/Theme.MuslimDaily</item>
     </style>
 

@@ -3,48 +3,32 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher_muslim"
+        android:icon="@mipmap/ic_launcher_khalif"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_muslim_round"
+        android:roundIcon="@mipmap/ic_launcher_khalif_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MuslimDaily"
-        android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!--
-        PERBAIKAN: Menggunakan path package lengkap untuk setiap Activity.
-        Ganti path ini jika struktur folder Anda berbeda.
-        Contoh: com.nafaskarya.muslimdaily.ui.splash.SplashActivity
-        -->
+        <!-- Launcher Activity -->
         <activity
-            android:name="com.nafaskarya.muslimdaily.SplashActivity"
-            android:exported="true"
-            android:theme="@style/Theme.MuslimDaily.Splash">
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- Activity utama untuk UI Compose -->
         <activity
-            android:name="com.nafaskarya.muslimdaily.OnboardingActivity"
+            android:name=".presentation.core.AppActivity"
             android:exported="false" />
-
-        <activity
-            android:name="com.nafaskarya.muslimdaily.MainActivity"
-            android:exported="false" />
-
     </application>
 
 </manifest>
-

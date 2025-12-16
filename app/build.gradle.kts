@@ -1,9 +1,5 @@
-// File: app/build.gradle.kts
-
-// --- PERBAIKAN: Tambahkan import untuk kelas Java di sini ---
 import java.util.Properties
 import java.io.FileInputStream
-// -----------------------------------------------------------
 
 plugins {
     alias(libs.plugins.android.application)
@@ -14,12 +10,12 @@ plugins {
 
 android {
     namespace = "com.nafaskarya.muslimdaily"
-    compileSdk = 35
+    compileSdk = 34
 
     val keystorePropertiesFile = rootProject.file("keystore.properties")
-    val keystoreProperties = Properties() // Sekarang tidak error
+    val keystoreProperties = Properties()
     if (keystorePropertiesFile.exists()) {
-        keystoreProperties.load(FileInputStream(keystorePropertiesFile)) // Sekarang tidak error
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
     }
 
     signingConfigs {
@@ -35,8 +31,8 @@ android {
 
     defaultConfig {
         applicationId = "com.nafaskarya.muslimdaily"
-        minSdk = 21
-        targetSdk = 35
+        minSdk = 23
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -51,10 +47,6 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
-            buildConfigField("String", "BASE_URL", "\"https://api.production.com/\"")
-        }
-        debug {
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
         }
     }
 
@@ -63,8 +55,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
         isCoreLibraryDesugaringEnabled = true
     }
-
-
 
     kotlinOptions {
         jvmTarget = "1.8"
@@ -81,17 +71,24 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.window)
 
     // Compose
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
+
     implementation(libs.androidx.ui)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.material3.windowSizeClass)
     implementation(libs.androidx.ui.tooling.preview)
     debugImplementation(libs.androidx.ui.tooling)
+
+    // 👇 Material 3 (Versi 1.3.0 diambil dari libs.versions.toml)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material3.windowSizeClass)
     implementation(libs.androidx.material.icons.extended)
+
+    // 👇 Foundation sudah otomatis dihandle oleh BOM, tidak perlu ditulis manual
+    // implementation("androidx.compose.foundation:foundation:1.6.5") <- HAPUS INI
 
     // Activity, Lifecycle, Navigation
     implementation(libs.androidx.activity.compose)
@@ -119,15 +116,14 @@ dependencies {
     implementation(libs.shimmer)
     implementation(libs.timber)
 
-    implementation("androidx.compose.foundation:foundation:1.6.5")
+    // 👇 Landscapist Coil (Diambil dari libs.versions.toml)
+    implementation(libs.landscapist.coil)
 
     // Worker
     implementation(libs.androidx.work.runtime.ktx)
 
     // Desugaring
     coreLibraryDesugaring(libs.desugar.jdk.libs)
-
-
 
     // Testing
     testImplementation(libs.junit)
