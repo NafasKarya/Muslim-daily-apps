@@ -1,6 +1,5 @@
 package com.nafaskarya.muslimdaily.presentation.core.components.kitabSection.part
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,16 +10,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.nafaskarya.muslimdaily.R
 import com.nafaskarya.muslimdaily.presentation.core.components.kitabSection.CommunitySong
 import com.nafaskarya.muslimdaily.presentation.core.constant.TextWhite
@@ -29,10 +31,28 @@ import com.nafaskarya.muslimdaily.presentation.core.shared.card.GradientRoundedC
 import com.nafaskarya.muslimdaily.presentation.core.shared.card.PrimaryPillButton
 import com.nafaskarya.muslimdaily.presentation.core.utils.windows.WindowDimensions
 
-// Warna Background Kartu khusus section Kitab
 private val CardGradientColors = listOf(
-    Color(0xFF3E2B2B), // Coklat Kemerahan Atas
-    Color(0xFF1F1515)  // Gelap Bawah
+    Color(0xFF3E2B2B),
+    Color(0xFF1F1515)
+)
+
+// ✅ OPTIMASI 1: Pindahkan data dummy ke luar agar tidak dibuat ulang tiap scroll
+private val staticSongs = listOf(
+    CommunitySong(
+        title = "Unta yang Nangis di Tengah Padang",
+        artist = "Tentang rasa bersalah & taubat • versi ringkas buat Gen Z",
+        imageUrl = ""
+    ),
+    CommunitySong(
+        title = "Burung Pembawa Pesan Rahasia",
+        artist = "Ngomongin amanah, chat rahasia, dan jaga titipan",
+        imageUrl = ""
+    ),
+    CommunitySong(
+        title = "Serigala yang Jadi Saksi",
+        artist = "Kisah persidangan ala zaman dulu, tapi tetap relate",
+        imageUrl = ""
+    )
 )
 
 @Composable
@@ -46,14 +66,9 @@ fun KitabCommunityCard(dimen: WindowDimensions) {
         cornerRadius = 16.dp,
         gradientColors = CardGradientColors
     ) {
-        // 1. HEADER (Collage Image + Title)
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             CollageCoverImage(size = dimen.width * 0.28f)
-
             Spacer(modifier = Modifier.width(16.dp))
-
             Column {
                 Text(
                     text = "Kisah Hewan Aneh di Kitab Klasik",
@@ -86,34 +101,14 @@ fun KitabCommunityCard(dimen: WindowDimensions) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 2. LIST KISAH (masih pakai CommunitySong, tapi image-nya ignore & pakai asset lokal)
-        val songs = listOf(
-            CommunitySong(
-                title = "Unta yang Nangis di Tengah Padang",
-                artist = "Tentang rasa bersalah & taubat • versi ringkas buat Gen Z",
-                imageUrl = "" // diabaikan, pakai drawable
-            ),
-            CommunitySong(
-                title = "Burung Pembawa Pesan Rahasia",
-                artist = "Ngomongin amanah, chat rahasia, dan jaga titipan",
-                imageUrl = ""
-            ),
-            CommunitySong(
-                title = "Serigala yang Jadi Saksi",
-                artist = "Kisah persidangan ala zaman dulu, tapi tetap relate",
-                imageUrl = ""
-            )
-        )
-
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            songs.forEach { song ->
+            staticSongs.forEach { song ->
                 CommunitySongItem(dimen, song)
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 3. ACTION BUTTONS
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -121,13 +116,12 @@ fun KitabCommunityCard(dimen: WindowDimensions) {
             PrimaryPillButton(
                 text = "Baca Sekarang",
                 dimen = dimen,
-                onClick = { /* TODO: Read Action */ }
+                onClick = { }
             )
-
             CircleIconButton(
                 icon = Icons.Outlined.ThumbUp,
                 contentDescription = "Like",
-                onClick = { /* TODO: Like */ }
+                onClick = { }
             )
         }
     }
@@ -139,9 +133,13 @@ fun CommunitySongItem(dimen: WindowDimensions, song: CommunitySong) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Pakai asset lokal, bukan URL
-        Image(
-            painter = painterResource(id = R.drawable.img_onboarding),
+        // ✅ OPTIMASI 2: Ganti Image biasa dengan AsyncImage (Coil)
+        // Ini mencegah UI Thread macet karena decoding gambar berat
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(R.drawable.img_onboarding)
+                .crossfade(true)
+                .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -185,49 +183,39 @@ fun CommunitySongItem(dimen: WindowDimensions, song: CommunitySong) {
 
 @Composable
 fun CollageCoverImage(size: Dp) {
+    val context = LocalContext.current
+    // ✅ Cache request image biar ringan saat collage dirender
+    val imageRequest = remember(context) {
+        ImageRequest.Builder(context)
+            .data(R.drawable.img_onboarding)
+            .crossfade(false)
+            .build()
+    }
+
     Box(
         modifier = Modifier
             .size(size)
             .clip(RoundedCornerShape(8.dp))
     ) {
-        // Kolase simple, tapi semua pakai img_onboarding biar konsisten offline
         Column {
             Row(Modifier.weight(1f)) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_onboarding),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.img_onboarding),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
+                CollageItem(imageRequest, Modifier.weight(1f))
+                CollageItem(imageRequest, Modifier.weight(1f))
             }
             Row(Modifier.weight(1f)) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_onboarding),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.img_onboarding),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
+                CollageItem(imageRequest, Modifier.weight(1f))
+                CollageItem(imageRequest, Modifier.weight(1f))
             }
         }
     }
+}
+
+@Composable
+fun CollageItem(request: ImageRequest, modifier: Modifier) {
+    AsyncImage(
+        model = request,
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = modifier.fillMaxHeight()
+    )
 }

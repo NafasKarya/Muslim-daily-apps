@@ -1,13 +1,7 @@
 package com.nafaskarya.muslimdaily.presentation.core.components.kitabSection
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +12,6 @@ import com.nafaskarya.muslimdaily.presentation.core.components.kitabSection.part
 import com.nafaskarya.muslimdaily.presentation.core.constant.TextWhite
 import com.nafaskarya.muslimdaily.presentation.core.utils.windows.rememberWindowDimensions
 
-// Dummy Data
 data class CommunitySong(
     val title: String,
     val artist: String,
@@ -34,7 +27,6 @@ fun KitabSliderDailySection() {
             .fillMaxWidth()
             .padding(vertical = dimen.getResponsiveHeight(0.02f))
     ) {
-        // --- SECTION TITLE ---
         Text(
             text = "From the community",
             style = MaterialTheme.typography.titleLarge.copy(
@@ -48,19 +40,17 @@ fun KitabSliderDailySection() {
             )
         )
 
-        // 👇 Spacer biar kartu gak nempel ke judul
-        Spacer(
-            modifier = Modifier.height(
-                dimen.getResponsiveHeight(0.015f) // sekitar 8–12dp tergantung tinggi layar
-            )
-        )
+        Spacer(modifier = Modifier.height(dimen.getResponsiveHeight(0.015f)))
 
-        // --- SLIDER ROW ---
         LazyRow(
             contentPadding = PaddingValues(horizontal = dimen.width * 0.05f),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(3) {
+            // ✅ OPTIMASI 4: Tambahkan KEY dan count
+            items(
+                count = 3,
+                key = { index -> index }
+            ) {
                 KitabCommunityCard(dimen)
             }
         }

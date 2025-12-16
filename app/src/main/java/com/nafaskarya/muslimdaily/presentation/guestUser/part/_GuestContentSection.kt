@@ -23,13 +23,12 @@ fun GuestContentSection(
     title: String,
     items: List<ContentItem>,
     dimen: WindowDimensions,
-    onItemClick: (ContentItem) -> Unit // ✅ callback untuk klik item
+    onItemClick: (ContentItem) -> Unit
 ) {
     val horizontalPadding = dimen.width * 0.05f
     val titleSize = dimen.getResponsiveTextSize(0.045f, min = 18f, max = 22f)
 
     Column {
-        // 🔹 Section Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -48,17 +47,19 @@ fun GuestContentSection(
                 text = "Lihat semuanya",
                 fontSize = 12.sp,
                 color = TextGray,
-                modifier = Modifier.clickable { /* bisa diarahkan ke halaman kategori */ }
+                modifier = Modifier.clickable { }
             )
         }
 
-        // 🔹 Daftar konten horizontal
         LazyRow(
             contentPadding = PaddingValues(horizontal = horizontalPadding),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(items) { item ->
-                // ⬇️ kirim callback ketika diklik
+            // ✅ OPTIMASI 3: Tambahkan KEY!
+            items(
+                items = items,
+                key = { item -> item.title.hashCode() } // Gunakan ID unik jika ada
+            ) { item ->
                 GuestContentCard(
                     item = item,
                     screenWidth = dimen.width,
