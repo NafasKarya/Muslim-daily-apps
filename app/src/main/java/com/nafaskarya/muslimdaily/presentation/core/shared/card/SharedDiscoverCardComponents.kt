@@ -12,32 +12,32 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.nafaskarya.muslimdaily.presentation.core.constant.TextWhite
 import com.nafaskarya.muslimdaily.presentation.core.utils.windows.WindowDimensions
 import com.nafaskarya.muslimdaily.presentation.core.utils.windows.rememberWindowDimensions
 
-// --- DATA MODEL (bisa dipakai di mana-mana) ---
 data class DiscoverSong(
     val title: String,
     val artist: String,
     val plays: String,
     val contextInfo: String,
-    val imageModel: Any        // 👈 diganti dari imageUrl: String ke Any
+    val imageModel: Any
 )
 
-// --- SECTION SHARED (header + slider) ---
 @Composable
 fun SharedDiscoverCardSection(
     title: String,
@@ -53,7 +53,6 @@ fun SharedDiscoverCardSection(
             .fillMaxWidth()
             .padding(vertical = dimen.getResponsiveHeight(0.02f))
     ) {
-        // HEADER SECTION
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,12 +89,14 @@ fun SharedDiscoverCardSection(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // SLIDER ROW
         LazyRow(
             contentPadding = PaddingValues(horizontal = dimen.width * 0.05f),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(songs) { song ->
+            items(
+                items = songs,
+                key = { it.title + it.artist }
+            ) { song ->
                 SharedDiscoverCardItem(
                     dimen = dimen,
                     song = song,
@@ -106,7 +107,6 @@ fun SharedDiscoverCardSection(
     }
 }
 
-// --- SINGLE CARD SHARED ---
 @Composable
 fun SharedDiscoverCardItem(
     dimen: WindowDimensions,
@@ -116,6 +116,18 @@ fun SharedDiscoverCardItem(
 ) {
     val cardWidth = dimen.width * 0.85f
     val cardHeight = cardWidth
+    val context = LocalContext.current
+
+    val gradientBrush = remember {
+        Brush.verticalGradient(
+            colors = listOf(
+                Color.Black.copy(alpha = 0.8f),
+                Color.Transparent,
+                Color.Transparent,
+                Color.Black.copy(alpha = 0.9f)
+            )
+        )
+    }
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -128,38 +140,28 @@ fun SharedDiscoverCardItem(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Background Image (bisa URL atau drawable res ID)
             AsyncImage(
-                model = song.imageModel,          // 👈 pakai imageModel, type Any
+                model = ImageRequest.Builder(context)
+                    .data(song.imageModel)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = song.title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Gradient Overlay biar teks kebaca
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.8f),
-                                Color.Transparent,
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.9f)
-                            )
-                        )
-                    )
+                    .background(brush = gradientBrush)
             )
 
-            // Content Text
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // TOP: title + artist
                 Column {
                     Text(
                         text = song.title,
@@ -187,7 +189,6 @@ fun SharedDiscoverCardItem(
                     )
                 }
 
-                // BOTTOM: context info
                 Text(
                     text = song.contextInfo,
                     style = MaterialTheme.typography.bodySmall.copy(
