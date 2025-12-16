@@ -14,14 +14,8 @@ val PlayerIconColor = Color.White
 val PlayerAccentGreen = Color(0xFF1DB954)
 
 // ==== SHARE SCREEN COLORS ====
-
-// Background utama share screen
 val ShareScreenBackground = Color(0xFF1E1611)
-
-// Warna abu-abu untuk tombol Invite / surface kecil
 val ShareSurfaceColor = Color(0xFF3E3E3E)
-
-// Palette warna kartu share
 val ShareCardBrown = Color(0xFF4E342E)
 val ShareCardGold = Color(0xFFD4A056)
 val ShareCardWhite = Color(0xFFFFFFFF)
@@ -30,19 +24,17 @@ val ShareCardTeal = Color(0xFF004D40)
 val ShareCardBlue = Color(0xFF0D47A1)
 val ShareCardRed = Color(0xFFD32F2F)
 
-// List warna kartu share
 val ShareCardColors = listOf(
-    ShareCardBrown,
-    ShareCardGold,
-    ShareCardWhite,
-    ShareCardBlack,
-    ShareCardTeal,
-    ShareCardBlue,
-    ShareCardRed
+    ShareCardBrown, ShareCardGold, ShareCardWhite, ShareCardBlack,
+    ShareCardTeal, ShareCardBlue, ShareCardRed
 )
 
 // ==== MORE MENU COLORS ====
-
 val MoreMenuSheetBackground = Color(0xFF1F1F1F)
 val MoreMenuButtonBackground = Color(0xFF333333)
 val MoreMenuSeparatorColor = Color(0xFF2C2C2C)
+
+// ==== PROFILE COLORS (NEW) ====
+val ProfileBackground = Color(0xFF121212)
+val ProfileSurface = Color(0xFF1F1F1F)
+val ProfileRedDanger = Color(0xFFEF5350)

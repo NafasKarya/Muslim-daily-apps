@@ -12,15 +12,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.nafaskarya.muslimdaily.presentation.core.utils.windows.WindowDimensions
 
 private val TextWhite = Color(0xFFEEEEEE)
 private val TextGray = Color(0xFFAAAAAA)
 
 @Composable
-fun GuestHeaderSection(dimen: WindowDimensions) {
+fun GuestHeaderSection(
+    dimen: WindowDimensions,
+    onProfileClick: () -> Unit // ✅ 1. Parameter Baru
+) {
     val horizontalPadding = dimen.width * 0.05f
     val nameSize = dimen.getResponsiveTextSize(0.045f, min = 16f, max = 24f)
     val emailSize = dimen.getResponsiveTextSize(0.035f, min = 12f, max = 16f)
@@ -34,7 +37,9 @@ fun GuestHeaderSection(dimen: WindowDimensions) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Surface(
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier
+                    .size(50.dp)
+                    .clickable { onProfileClick() }, // ✅ 2. Aksi Klik
                 shape = CircleShape,
                 color = Color.LightGray
             ) {}

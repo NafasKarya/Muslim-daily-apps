@@ -15,6 +15,7 @@ import com.nafaskarya.muslimdaily.presentation.auth.LoginScreen
 import com.nafaskarya.muslimdaily.presentation.core.shared.player.moreMenu.MoreMenuBottomSheet
 import com.nafaskarya.muslimdaily.presentation.core.shared.player.sharing.ShareScreen
 import com.nafaskarya.muslimdaily.presentation.core.shared.playlist.PlaylistScreen
+import com.nafaskarya.muslimdaily.presentation.core.shared.profile.ProfileAccountScreen
 import com.nafaskarya.muslimdaily.presentation.guestUser.GuestScreen
 import com.nafaskarya.muslimdaily.presentation.onboarding.OnboardingScreen
 import com.nafaskarya.muslimdaily.presentation.splash.SplashScreen
@@ -46,6 +47,23 @@ fun AppRoutes() {
 
             composable(AppDestination.Guest.route) {
                 GuestScreen(navController)
+            }
+
+            composable(
+                route = "profile_screen",
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { ExitTransition.None }
+            ) {
+                ProfileAccountScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onLogoutConfirmed = {
+                        navController.navigate(AppDestination.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
             }
 
             composable("playlist_screen") {

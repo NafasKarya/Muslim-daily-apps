@@ -90,10 +90,10 @@ fun GuestScreen(navController: NavController) {
 
     // --- MOCK DATA ---
     val genZList = listOf(
-        ContentItem("Galau Moment", "Kajian buat Gen Z yang lagi galau 😭🫶", R.drawable.img_onboarding),
-        ContentItem("Hijrah Kuy", "Hijrah yuk biar hidup makin barokah 🌙", R.drawable.img_onboarding),
+        ContentItem("Galau Moment", "Kajian buat Gen Z yang lagi galau 亊ｫｶ", R.drawable.img_onboarding),
+        ContentItem("Hijrah Kuy", "Hijrah yuk biar hidup makin barokah 嫌", R.drawable.img_onboarding),
         ContentItem("Pengen Tobat", "Kadang pengen mulai lagi dari nol, tanpa dosa yang sama.", R.drawable.img_onboarding),
-        ContentItem("Gaul Vibes", "Santai boleh, tapi iman jangan libur 💪", R.drawable.img_onboarding)
+        ContentItem("Gaul Vibes", "Santai boleh, tapi iman jangan libur 潮", R.drawable.img_onboarding)
     )
 
     Box(
@@ -110,7 +110,16 @@ fun GuestScreen(navController: NavController) {
                     .padding(paddingValues),
                 contentPadding = PaddingValues(bottom = 160.dp)
             ) {
-                item { GuestHeaderSection(dimen) }
+                // ✅ Update Header untuk Navigasi
+                item {
+                    GuestHeaderSection(
+                        dimen = dimen,
+                        onProfileClick = {
+                            navController.navigate("profile_screen")
+                        }
+                    )
+                }
+
                 item { GuestCategorySection(dimen) }
                 item { GuestContentSection("Lagi Gen Z banget", genZList, dimen) { showPlayer = true } }
 
@@ -123,7 +132,7 @@ fun GuestScreen(navController: NavController) {
                 // YOUR DAILY DISCOVER
                 item { DiscoverCardSlider() }
 
-                // 👇 TODAY'S BIGGEST HITS (DENGAN NAVIGASI)
+                // 燥 TODAY'S BIGGEST HITS (DENGAN NAVIGASI)
                 item {
                     MoreLikeThis(
                         onItemClick = { id ->
